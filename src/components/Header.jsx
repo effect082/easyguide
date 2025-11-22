@@ -54,7 +54,6 @@ const Header = () => {
             let publishMetadata;
 
             if (shareBlock && shareBlock.content && shareBlock.content.shareTitle) {
-                // Use Share block metadata
                 publishMetadata = {
                     type: shareBlock.content.shareType || state.projectMeta.type || '뉴스레터',
                     title: shareBlock.content.shareTitle,
@@ -62,7 +61,6 @@ const Header = () => {
                     image: shareBlock.content.shareImage || '',
                 };
             } else if (headBlock && headBlock.content) {
-                // Fall back to Head block metadata
                 publishMetadata = {
                     type: state.projectMeta.type || '뉴스레터',
                     title: headBlock.content.title || state.projectMeta.title || '제목 없음',
@@ -70,7 +68,6 @@ const Header = () => {
                     image: '',
                 };
             } else {
-                // Default metadata
                 publishMetadata = {
                     type: state.projectMeta.type || '뉴스레터',
                     title: state.projectMeta.title || '제목 없음',
@@ -79,34 +76,34 @@ const Header = () => {
                 };
             }
 
-            // Create publish data with blocks and metadata
+            // Generate UUID for this publication
+            const uuid = uuidv4();
+
+            // Create publish data
             const publishData = {
+                id: uuid,
+                projectId: state.projectMeta.id,
                 blocks: state.blocks,
-                metadata: publishMetadata
+                metadata: publishMetadata,
+                publishedAt: new Date().toISOString(),
             };
 
-            // Encode data for URL
-            const jsonData = JSON.stringify(publishData);
+            // Save to localStorage
+            const publishedContent = JSON.parse(localStorage.getItem('published_content') || '{}');
+            publishedContent[uuid] = publishData;
+            localStorage.setItem('published_content', JSON.stringify(publishedContent));
 
-            // Check if data is too large (URL length limit)
-            if (jsonData.length > 50000) {
-                alert('콘텐츠가 너무 커서 게시할 수 없습니다.\n이미지 블록의 수를 줄이거나 이미지 URL을 사용해주세요.');
-                return;
-            }
-
-            const encoded = btoa(encodeURIComponent(jsonData));
-
-            // Generate URL
+            // Generate short URL
             const baseUrl = window.location.origin + window.location.pathname;
-            const url = `${baseUrl}?view=shared&data=${encoded}`;
+            const url = `${baseUrl}?project=${uuid}`;
 
-            setPublishedUuid(encoded.substring(0, 20));
+            setPublishedUuid(uuid);
             setPublishedUrl(url);
             setMetadata(publishMetadata);
             setShowPublishModal(true);
         } catch (error) {
             console.error('Publish error:', error);
-            alert('게시 중 오류가 발생했습니다.\n콘텐츠가 너무 크거나 유효하지 않은 데이터가 포함되어 있을 수 있습니다.');
+            alert('게시 중 오류가 발생했습니다.');
         }
     };
 

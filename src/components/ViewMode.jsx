@@ -9,73 +9,66 @@ const ViewMode = ({ uuid }) => {
     useEffect(() => {
         try {
             const params = new URLSearchParams(window.location.search);
-            const viewParam = params.get('view');
+            const projectParam = params.get('project');
             const dataParam = params.get('data');
 
-            if (dataParam) {
-                // New format: data parameter contains blocks and metadata
-                const decoded = decodeURIComponent(atob(dataParam));
-                const publishData = JSON.parse(decoded);
-
-                setBlocks(publishData.blocks || []);
-                setMetadata(publishData.metadata);
-
-                // Update document title and meta tags for social sharing
-                if (publishData.metadata) {
-                    const shareTitle = `${publishData.metadata.type} "${publishData.metadata.title}"`;
-                    const shareDescription = publishData.metadata.description || publishData.metadata.title;
-
-                    document.title = shareTitle;
-
-                    // Update or create meta tags
-                    const updateMetaTag = (property, content) => {
-                        let metaTag = document.querySelector(`meta[property="${property}"]`);
-                        if (!metaTag) {
-                            metaTag = document.createElement('meta');
-                            metaTag.setAttribute('property', property);
-                            document.head.appendChild(metaTag);
-                        }
-                        metaTag.setAttribute('content', content);
-                    };
-
-                    const updateNameMetaTag = (name, content) => {
-                        let metaTag = document.querySelector(`meta[name="${name}"]`);
-                        if (!metaTag) {
-                            metaTag = document.createElement('meta');
-                            metaTag.setAttribute('name', name);
-                            document.head.appendChild(metaTag);
-                        }
-                        metaTag.setAttribute('content', content);
-                    };
-
-                    // Open Graph tags
-                    updateMetaTag('og:title', shareTitle);
-                    updateMetaTag('og:description', shareDescription);
-                    updateMetaTag('og:type', 'article');
-
-                    // Add image if available
-                    if (publishData.metadata.image) {
-                        updateMetaTag('og:image', publishData.metadata.image);
-                    }
-
-                    // KakaoTalk specific tags
-                    updateMetaTag('kakao:title', shareTitle);
-                    updateMetaTag('kakao:description', shareDescription);
-
-                    // Standard meta description
-                    updateNameMetaTag('description', shareDescription);
-                }
-            } else if (viewParam && viewParam !== 'shared') {
-                // Old UUID format - try localStorage (for backwards compatibility)
+            if (projectParam) {
+                // Load from localStorage using project UUID
                 const publishedContent = JSON.parse(localStorage.getItem('published_content') || '{}');
-                const content = publishedContent[viewParam];
+                const content = publishedContent[projectParam];
 
                 if (content) {
                     setBlocks(content.blocks || []);
                     setMetadata(content.metadata);
+
+                    // Update document title and meta tags
+                    if (content.metadata) {
+                        const shareTitle = `${content.metadata.type} "${content.metadata.title}"`;
+                        const shareDescription = content.metadata.description || content.metadata.title;
+
+                        document.title = shareTitle;
+
+                        const updateMetaTag = (property, content) => {
+                            let metaTag = document.querySelector(`meta[property="${property}"]`);
+                            if (!metaTag) {
+                                metaTag = document.createElement('meta');
+                                metaTag.setAttribute('property', property);
+                                document.head.appendChild(metaTag);
+                            }
+                            metaTag.setAttribute('content', content);
+                        };
+
+                        const updateNameMetaTag = (name, content) => {
+                            let metaTag = document.querySelector(`meta[name="${name}"]`);
+                            if (!metaTag) {
+                                metaTag = document.createElement('meta');
+                                metaTag.setAttribute('name', name);
+                                document.head.appendChild(metaTag);
+                            }
+                            metaTag.setAttribute('content', content);
+                        };
+
+                        updateMetaTag('og:title', shareTitle);
+                        updateMetaTag('og:description', shareDescription);
+                        updateMetaTag('og:type', 'article');
+
+                        if (content.metadata.image) {
+                            updateMetaTag('og:image', content.metadata.image);
+                        }
+
+                        updateMetaTag('kakao:title', shareTitle);
+                        updateMetaTag('kakao:description', shareDescription);
+                        updateNameMetaTag('description', shareDescription);
+                    }
                 } else {
                     setError('콘텐츠를 찾을 수 없습니다. URL이 유효하지 않거나 만료되었을 수 있습니다.');
                 }
+            } else if (dataParam) {
+                // Old format: data parameter (for backwards compatibility)
+                const decoded = decodeURIComponent(atob(dataParam));
+                const publishData = JSON.parse(decoded);
+                setBlocks(publishData.blocks || []);
+                setMetadata(publishData.metadata);
             }
         } catch (err) {
             console.error(err);
