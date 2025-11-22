@@ -58,6 +58,17 @@ const PropertyPanel = () => {
         dispatch({ type: 'REORDER_BLOCKS', payload: newBlocks });
     };
 
+    const handleImageUpload = (e, key = 'src') => {
+        const file = e.target.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                handleChange(key, reader.result);
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
     if (!selectedBlock) {
         return (
             <div className="p-6 text-center text-gray-500">
@@ -162,16 +173,40 @@ const PropertyPanel = () => {
 
                 {/* Image/Video Block */}
                 {(selectedBlock.type === 'image' || selectedBlock.type === 'video') && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">주소 (URL)</label>
-                        <input
-                            type="text"
-                            value={values.src || ''}
-                            onChange={(e) => handleChange('src', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                            placeholder="https://..."
-                        />
-                    </div>
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">이미지 업로드</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, 'src')}
+                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">또는 이미지 URL 입력</label>
+                            <input
+                                type="text"
+                                value={values.src || ''}
+                                onChange={(e) => handleChange('src', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="https://..."
+                            />
+                        </div>
+                        {selectedBlock.type === 'image' && (
+                            <div>
+                                <label className="block text-sm font-medium text-gray-700 mb-1">링크 URL (선택사항)</label>
+                                <input
+                                    type="text"
+                                    value={values.link || ''}
+                                    onChange={(e) => handleChange('link', e.target.value)}
+                                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    placeholder="https://..."
+                                />
+                                <p className="text-xs text-gray-400 mt-1">이미지를 클릭했을 때 이동할 URL을 입력하세요</p>
+                            </div>
+                        )}
+                    </>
                 )}
 
                 {/* Slide Block */}
@@ -307,6 +342,249 @@ const PropertyPanel = () => {
                                     />
                                 </div>
                             ))}
+                        </div>
+                    </>
+                )}
+
+                {/* Gallery Block */}
+                {selectedBlock.type === 'gallery' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">열 개수 (Columns)</label>
+                            <select
+                                value={styles.columns || 2}
+                                onChange={(e) => handleStyleChange('columns', parseInt(e.target.value))}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                            >
+                                <option value="1">1열</option>
+                                <option value="2">2열</option>
+                                <option value="3">3열</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">갤러리 이미지 관리</label>
+                            <div className="mb-3">
+                                <label className="block text-xs text-gray-500 mb-1">이미지 추가 (업로드)</label>
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                        const file = e.target.files[0];
+                                        if (file) {
+                                            const reader = new FileReader();
+                                            reader.onloadend = () => {
+                                                handleChange('images', [...(values.images || []), reader.result]);
+                                            };
+                                            reader.readAsDataURL(file);
+                                        }
+                                    }}
+                                    className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                            </div>
+                            {(values.images || []).map((img, idx) => (
+                                <div key={idx} className="flex gap-2 mb-2 items-center">
+                                    <img src={img} alt="" className="w-8 h-8 object-cover rounded border" />
+                                    <input
+                                        type="text"
+                                        value={img}
+                                        onChange={(e) => {
+                                            const newImages = [...(values.images || [])];
+                                            newImages[idx] = e.target.value;
+                                            handleChange('images', newImages);
+                                        }}
+                                        className="flex-1 p-1 border border-gray-300 rounded text-xs"
+                                        placeholder="Image URL"
+                                    />
+                                    <button
+                                        onClick={() => {
+                                            const newImages = values.images.filter((_, i) => i !== idx);
+                                            handleChange('images', newImages);
+                                        }}
+                                        className="text-red-500 hover:bg-red-50 p-1 rounded"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => handleChange('images', [...(values.images || []), ''])}
+                                className="w-full py-2 bg-gray-50 text-gray-600 rounded-md text-xs hover:bg-gray-100 mt-2"
+                            >
+                                + URL로 이미지 추가
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* Business Block */}
+                {selectedBlock.type === 'business' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">사업명</label>
+                            <input
+                                type="text"
+                                value={values.name || ''}
+                                onChange={(e) => handleChange('name', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 노인복지 프로그램"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">사업 설명</label>
+                            <textarea
+                                value={values.description || ''}
+                                onChange={(e) => handleChange('description', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm h-20"
+                                placeholder="사업에 대한 상세 설명을 입력하세요."
+                            />
+                        </div>
+                        <div>
+                            <div className="flex justify-between items-center mb-2">
+                                <label className="block text-sm font-medium text-gray-700">상세 항목 (이용 대상, 이용료 등)</label>
+                                <button
+                                    onClick={() => handleChange('items', [...(values.items || []), { label: '', value: '' }])}
+                                    className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100"
+                                >
+                                    + 추가
+                                </button>
+                            </div>
+                            {(values.items || []).length === 0 && (
+                                <p className="text-xs text-gray-400 text-center py-2 bg-gray-50 rounded">상세 항목이 없습니다. "+ 추가" 버튼을 클릭하여 항목을 추가하세요.</p>
+                            )}
+                            {(values.items || []).map((item, idx) => (
+                                <div key={idx} className="mb-2 p-2 border border-gray-100 rounded bg-gray-50">
+                                    <div className="flex gap-2 mb-1">
+                                        <input
+                                            type="text"
+                                            placeholder="항목명 (예: 이용대상)"
+                                            value={item.label}
+                                            onChange={(e) => {
+                                                const newItems = [...(values.items || [])];
+                                                newItems[idx] = { ...item, label: e.target.value };
+                                                handleChange('items', newItems);
+                                            }}
+                                            className="w-1/3 p-1 border border-gray-300 rounded text-xs font-bold"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const newItems = values.items.filter((_, i) => i !== idx);
+                                                handleChange('items', newItems);
+                                            }}
+                                            className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
+                                    <textarea
+                                        placeholder="내용을 입력하세요"
+                                        value={item.value}
+                                        onChange={(e) => {
+                                            const newItems = [...(values.items || [])];
+                                            newItems[idx] = { ...item, value: e.target.value };
+                                            handleChange('items', newItems);
+                                        }}
+                                        className="w-full p-1 border border-gray-300 rounded text-xs h-16"
+                                    />
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+
+                {/* Schedule Block */}
+                {selectedBlock.type === 'schedule' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">일정 제목</label>
+                            <input
+                                type="text"
+                                value={values.title || ''}
+                                onChange={(e) => handleChange('title', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 결혼식, 돌잔치, 모임"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">상세 항목</label>
+                            {(values.items || []).map((item, idx) => (
+                                <div key={idx} className="mb-2 p-2 border border-gray-100 rounded bg-gray-50 relative">
+                                    <button
+                                        onClick={() => {
+                                            const newItems = values.items.filter((_, i) => i !== idx);
+                                            handleChange('items', newItems);
+                                        }}
+                                        className="absolute top-1 right-1 text-red-500 hover:bg-red-50 p-1 rounded"
+                                    >
+                                        <Trash2 size={14} />
+                                    </button>
+                                    <div className="flex gap-2 mb-1 pr-6">
+                                        <input
+                                            type="text"
+                                            placeholder="시간 (예: 14:00)"
+                                            value={item.time}
+                                            onChange={(e) => {
+                                                const newItems = [...(values.items || [])];
+                                                newItems[idx] = { ...item, time: e.target.value };
+                                                handleChange('items', newItems);
+                                            }}
+                                            className="w-1/3 p-1 border border-gray-300 rounded text-xs font-bold"
+                                        />
+                                        <input
+                                            type="text"
+                                            placeholder="이벤트명 (예: 본식 시작)"
+                                            value={item.event}
+                                            onChange={(e) => {
+                                                const newItems = [...(values.items || [])];
+                                                newItems[idx] = { ...item, event: e.target.value };
+                                                handleChange('items', newItems);
+                                            }}
+                                            className="flex-1 p-1 border border-gray-300 rounded text-xs"
+                                        />
+                                    </div>
+                                    <textarea
+                                        placeholder="설명 (선택사항)"
+                                        value={item.description || ''}
+                                        onChange={(e) => {
+                                            const newItems = [...(values.items || [])];
+                                            newItems[idx] = { ...item, description: e.target.value };
+                                            handleChange('items', newItems);
+                                        }}
+                                        className="w-full p-1 border border-gray-300 rounded text-xs h-12"
+                                    />
+                                </div>
+                            ))}
+                            <button
+                                onClick={() => handleChange('items', [...(values.items || []), { time: '', event: '', description: '' }])}
+                                className="w-full py-2 border border-blue-200 text-blue-600 rounded-md text-xs hover:bg-blue-50 mt-2"
+                            >
+                                + 항목 추가하기
+                            </button>
+                        </div>
+                    </>
+                )}
+
+                {/* Map Block */}
+                {selectedBlock.type === 'map' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">장소명</label>
+                            <input
+                                type="text"
+                                value={values.placeName || ''}
+                                onChange={(e) => handleChange('placeName', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 중앙공원"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">주소</label>
+                            <input
+                                type="text"
+                                value={values.address || ''}
+                                onChange={(e) => handleChange('address', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 서울시 강남구 테헤란로 123"
+                            />
                         </div>
                     </>
                 )}

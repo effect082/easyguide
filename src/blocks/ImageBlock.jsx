@@ -1,14 +1,31 @@
 import React from 'react';
 
 const ImageBlock = ({ content, styles }) => {
+    const { src, link } = content;
+    const { backgroundColor = 'transparent', padding = '0px', borderRadius = '0px' } = styles || {};
+
+    const ImageComponent = (
+        <img
+            src={src || 'https://placehold.co/600x400?text=No+Image'}
+            alt="Block Content"
+            className="w-full h-auto object-cover"
+            style={{ borderRadius }}
+        />
+    );
+
     return (
-        <div style={{ ...styles, padding: '10px' }}>
-            {content.src ? (
-                <img src={content.src} alt="Block" className="w-full h-auto rounded" />
+        <div style={{ backgroundColor, padding }}>
+            {link ? (
+                <a
+                    href={link}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block cursor-pointer hover:opacity-90 transition-opacity"
+                >
+                    {ImageComponent}
+                </a>
             ) : (
-                <div className="bg-gray-200 h-40 flex items-center justify-center text-gray-500 rounded">
-                    No Image Selected
-                </div>
+                ImageComponent
             )}
         </div>
     );

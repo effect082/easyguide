@@ -7,7 +7,11 @@ const blockTypes = [
     { type: 'text', label: '텍스트', icon: <Type size={20} /> },
     { type: 'image', label: '이미지', icon: <Image size={20} /> },
     { type: 'slide', label: '슬라이드', icon: <LayoutGrid size={20} /> },
+    { type: 'gallery', label: '갤러리', icon: <LayoutGrid size={20} /> },
     { type: 'video', label: '영상', icon: <Video size={20} /> },
+    { type: 'business', label: '사업안내', icon: <List size={20} /> },
+    { type: 'schedule', label: '일정', icon: <Calendar size={20} /> },
+    { type: 'map', label: '지도', icon: <MapPin size={20} /> },
     { type: 'form', label: '입력폼', icon: <List size={20} /> },
     { type: 'social', label: '소셜미디어', icon: <Link size={20} /> },
 ];
