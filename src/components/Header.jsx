@@ -19,24 +19,49 @@ const Header = () => {
     };
 
     const handleSave = () => {
-        if (password.length !== 4) {
+        // If project already has a password, use it. Otherwise prompt for new password.
+        const projectPassword = state.projectMeta.password || password;
+
+        if (!state.projectMeta.password && password.length !== 4) {
             alert('4자리 비밀번호를 입력해주세요.');
             return;
         }
 
+        const saved = JSON.parse(localStorage.getItem('my_projects') || '[]');
+
+        // Check if this is an existing project (update) or new project
+        const existingIndex = saved.findIndex(p => p.id === state.projectMeta.id);
+
         const project = {
-            id: Date.now(),
+            id: state.projectMeta.id || Date.now().toString(),
             title: state.projectMeta.title,
-            updatedAt: new Date().toISOString(),
+            category: state.projectMeta.category,
+            type: state.projectMeta.type,
+            password: projectPassword,
+            author: state.projectMeta.author,
             blocks: state.blocks,
-            password: password,
+            createdAt: existingIndex >= 0 ? saved[existingIndex].createdAt : new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
         };
 
-        const saved = JSON.parse(localStorage.getItem('my_projects') || '[]');
-        localStorage.setItem('my_projects', JSON.stringify([...saved, project]));
+        if (existingIndex >= 0) {
+            // Update existing project
+            saved[existingIndex] = project;
+        } else {
+            // Add new project
+            saved.push(project);
+        }
+
+        localStorage.setItem('my_projects', JSON.stringify(saved));
         alert('프로젝트가 저장되었습니다!');
         setShowSaveModal(false);
-        dispatch({ type: 'SET_VIEW', payload: 'landing' });
+        setPassword('');
+
+        // Update the project meta with the saved ID and password
+        dispatch({
+            type: 'SET_PROJECT_META',
+            payload: { id: project.id, password: projectPassword }
+        });
     };
 
     return (

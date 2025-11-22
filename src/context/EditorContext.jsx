@@ -7,7 +7,12 @@ const initialState = {
     blocks: [], // Array of block objects { id, type, content, styles }
     selectedBlockId: null,
     projectMeta: {
+        id: null,
         title: '나의 프로젝트',
+        category: '개인',
+        type: '뉴스레터',
+        password: null,
+        author: '',
         theme: 'light',
     },
     view: 'landing', // 'landing' | 'editor' | 'preview'
@@ -69,6 +74,22 @@ const editorReducer = (state, action) => {
             return {
                 ...state,
                 view: action.payload,
+            };
+        case 'LOAD_PROJECT':
+            return {
+                ...state,
+                blocks: action.payload.blocks || [],
+                projectMeta: {
+                    id: action.payload.id,
+                    title: action.payload.title,
+                    category: action.payload.category,
+                    type: action.payload.type,
+                    password: action.payload.password,
+                    author: action.payload.author,
+                    theme: 'light',
+                },
+                view: 'editor',
+                selectedBlockId: null,
             };
         default:
             return state;
