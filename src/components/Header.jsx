@@ -46,13 +46,37 @@ const Header = () => {
     };
 
     const handlePublish = () => {
-        // Extract metadata from Head block if exists
+        // Prioritize Share block metadata, fall back to Head block
+        const shareBlock = state.blocks.find(b => b.type === 'share');
         const headBlock = state.blocks.find(b => b.type === 'head');
-        const publishMetadata = {
-            type: state.projectMeta.type || '뉴스레터',
-            title: headBlock?.content?.title || state.projectMeta.title || '제목 없음',
-            description: headBlock?.content?.description || '',
-        };
+
+        let publishMetadata;
+
+        if (shareBlock && shareBlock.content.shareTitle) {
+            // Use Share block metadata
+            publishMetadata = {
+                type: shareBlock.content.shareType || state.projectMeta.type || '뉴스레터',
+                title: shareBlock.content.shareTitle,
+                description: shareBlock.content.shareDescription || '',
+                image: shareBlock.content.shareImage || '',
+            };
+        } else if (headBlock) {
+            // Fall back to Head block metadata
+            publishMetadata = {
+                type: state.projectMeta.type || '뉴스레터',
+                title: headBlock.content.title || state.projectMeta.title || '제목 없음',
+                description: headBlock.content.description || '',
+                image: '',
+            };
+        } else {
+            // Default metadata
+            publishMetadata = {
+                type: state.projectMeta.type || '뉴스레터',
+                title: state.projectMeta.title || '제목 없음',
+                description: '',
+                image: '',
+            };
+        }
 
         // Create publish data with blocks and metadata
         const publishData = {

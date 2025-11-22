@@ -53,6 +53,11 @@ const ViewMode = ({ uuid }) => {
                     updateMetaTag('og:description', shareDescription);
                     updateMetaTag('og:type', 'article');
 
+                    // Add image if available
+                    if (publishData.metadata.image) {
+                        updateMetaTag('og:image', publishData.metadata.image);
+                    }
+
                     // KakaoTalk specific tags
                     updateMetaTag('kakao:title', shareTitle);
                     updateMetaTag('kakao:description', shareDescription);
