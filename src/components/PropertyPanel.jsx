@@ -612,6 +612,63 @@ const PropertyPanel = () => {
                     </>
                 )}
 
+                {/* Share Block */}
+                {selectedBlock.type === 'share' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">콘텐츠 유형</label>
+                            <select
+                                value={values.shareType || '뉴스레터'}
+                                onChange={(e) => handleChange('shareType', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                            >
+                                <option value="뉴스레터">뉴스레터</option>
+                                <option value="홍보">홍보</option>
+                                <option value="초대장">초대장</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                            <input
+                                type="text"
+                                value={values.shareTitle || ''}
+                                onChange={(e) => handleChange('shareTitle', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 강동어울림복지관 개관 1주년 행사"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+                            <textarea
+                                value={values.shareDescription || ''}
+                                onChange={(e) => handleChange('shareDescription', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                rows="4"
+                                placeholder="예: 복지관 개관 1주년 행사에 여러분을 초대합니다."
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">썸네일 이미지</label>
+                            <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleImageUpload(e, 'shareImage')}
+                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">또는 이미지 URL 입력</label>
+                            <input
+                                type="text"
+                                value={values.shareImage || ''}
+                                onChange={(e) => handleChange('shareImage', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="https://..."
+                            />
+                        </div>
+                    </>
+                )}
+
                 {/* Block Management */}
                 <div className="pt-6 mt-6 border-t border-gray-100">
                     <h3 className="text-xs font-medium text-gray-500 mb-3">블록 관리</h3>

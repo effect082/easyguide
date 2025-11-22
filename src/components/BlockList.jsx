@@ -1,6 +1,6 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
-import { Type, Image, Video, Calendar, MapPin, Link, List, LayoutGrid } from 'lucide-react';
+import { Type, Image, Video, Calendar, MapPin, Link, List, LayoutGrid, Share2 } from 'lucide-react';
 import { useEditor } from '../context/EditorContext';
 
 const blockTypes = [
@@ -15,6 +15,7 @@ const blockTypes = [
     { type: 'map', label: '지도', icon: <MapPin size={20} /> },
     { type: 'form', label: '입력폼', icon: <List size={20} /> },
     { type: 'social', label: '소셜미디어', icon: <Link size={20} /> },
+    { type: 'share', label: '공유설정', icon: <Share2 size={20} /> },
 ];
 
 const DraggableBlock = ({ type, label, icon }) => {
