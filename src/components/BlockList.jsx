@@ -1,6 +1,7 @@
 import React from 'react';
 import { useDraggable } from '@dnd-kit/core';
 import { Type, Image, Video, Calendar, MapPin, Link, List, LayoutGrid } from 'lucide-react';
+import { useEditor } from '../context/EditorContext';
 
 const blockTypes = [
     { type: 'head', label: '헤드(제목)', icon: <Type size={20} /> },
@@ -17,6 +18,7 @@ const blockTypes = [
 ];
 
 const DraggableBlock = ({ type, label, icon }) => {
+    const { dispatch } = useEditor();
     const { attributes, listeners, setNodeRef, transform } = useDraggable({
         id: `draggable-${type}`,
         data: { type, label },
@@ -26,13 +28,22 @@ const DraggableBlock = ({ type, label, icon }) => {
         transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
     } : undefined;
 
+    const handleClick = (e) => {
+        // Only trigger if not dragging
+        if (!transform) {
+            e.stopPropagation();
+            dispatch({ type: 'ADD_BLOCK', payload: { blockType: type } });
+        }
+    };
+
     return (
         <div
             ref={setNodeRef}
             style={style}
             {...listeners}
             {...attributes}
-            className="p-3 bg-white border border-gray-200 rounded-lg cursor-move hover:bg-blue-50 hover:border-blue-300 transition-colors flex items-center gap-3 shadow-sm"
+            onClick={handleClick}
+            className="p-3 bg-white border border-gray-200 rounded-lg cursor-pointer hover:bg-blue-50 hover:border-blue-300 transition-colors flex items-center gap-3 shadow-sm"
         >
             <div className="text-gray-500">{icon}</div>
             <span className="font-medium text-gray-700">{label}</span>

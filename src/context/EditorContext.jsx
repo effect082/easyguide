@@ -18,7 +18,7 @@ const editorReducer = (state, action) => {
         case 'ADD_BLOCK':
             const newBlock = {
                 id: uuidv4(),
-                type: action.payload.type,
+                type: action.payload.blockType || action.payload.type,
                 content: action.payload.defaultContent || {},
                 styles: {},
             };

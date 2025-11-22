@@ -22,7 +22,6 @@ const templates = [
         defaultBlocks: [
             { type: 'image', content: { src: 'https://placehold.co/600x800' } },
             { type: 'text', content: { text: '<h2>특별 할인!</h2><p>이번 주에만 50% 할인 혜택을 드립니다.</p>' } },
-            { type: 'button', content: { text: '지금 구매하기', url: '#' } },
         ]
     },
     {
