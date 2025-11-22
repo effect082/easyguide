@@ -46,9 +46,6 @@ const Header = () => {
     };
 
     const handlePublish = () => {
-        // Generate UUID for this publication
-        const uuid = uuidv4();
-
         // Extract metadata from Head block if exists
         const headBlock = state.blocks.find(b => b.type === 'head');
         const publishMetadata = {
@@ -57,22 +54,21 @@ const Header = () => {
             description: headBlock?.content?.description || '',
         };
 
-        // Save published content to localStorage
-        const publishedContent = JSON.parse(localStorage.getItem('published_content') || '{}');
-        publishedContent[uuid] = {
-            id: uuid,
-            projectId: state.projectMeta.id,
+        // Create publish data with blocks and metadata
+        const publishData = {
             blocks: state.blocks,
-            metadata: publishMetadata,
-            publishedAt: new Date().toISOString(),
+            metadata: publishMetadata
         };
-        localStorage.setItem('published_content', JSON.stringify(publishedContent));
+
+        // Encode data for URL
+        const jsonData = JSON.stringify(publishData);
+        const encoded = btoa(encodeURIComponent(jsonData));
 
         // Generate URL
         const baseUrl = window.location.origin + window.location.pathname;
-        const url = `${baseUrl}?view=${uuid}`;
+        const url = `${baseUrl}?view=shared&data=${encoded}`;
 
-        setPublishedUuid(uuid);
+        setPublishedUuid(encoded.substring(0, 20)); // Use part of encoded string as ID
         setPublishedUrl(url);
         setMetadata(publishMetadata);
         setShowPublishModal(true);

@@ -33,7 +33,8 @@ const HeadBlock = ({ content, styles }) => {
                 <p style={{
                     fontSize: '0.875rem',
                     textAlign,
-                    color: '#666666'
+                    color: '#666666',
+                    whiteSpace: 'pre-wrap'
                 }}>
                     {description}
                 </p>
