@@ -15,12 +15,12 @@ const Header = () => {
         // In a real app, we would shorten this URL or save to a DB.
         // For this demo, we just copy to clipboard.
         navigator.clipboard.writeText(url);
-        alert('Link copied to clipboard! Open it in a new tab to view.');
+        alert('링크가 클립보드에 복사되었습니다! 새 탭에서 열어보세요.');
     };
 
     const handleSave = () => {
         if (password.length !== 4) {
-            alert('Please enter a 4-digit password.');
+            alert('4자리 비밀번호를 입력해주세요.');
             return;
         }
 
@@ -34,7 +34,7 @@ const Header = () => {
 
         const saved = JSON.parse(localStorage.getItem('my_projects') || '[]');
         localStorage.setItem('my_projects', JSON.stringify([...saved, project]));
-        alert('Project saved!');
+        alert('프로젝트가 저장되었습니다!');
         setShowSaveModal(false);
         dispatch({ type: 'SET_VIEW', payload: 'landing' });
     };
@@ -57,32 +57,32 @@ const Header = () => {
                     className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg font-medium transition-colors"
                 >
                     <Save size={18} />
-                    Save
+                    저장
                 </button>
                 <button
                     onClick={handlePublish}
                     className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow"
                 >
                     <Share size={18} />
-                    Publish
+                    게시
                 </button>
             </div>
 
             {showSaveModal && (
                 <div className="absolute top-16 right-6 w-80 bg-white shadow-xl rounded-xl border border-gray-200 p-6 z-50 animate-in fade-in slide-in-from-top-2">
-                    <h3 className="font-bold text-lg mb-2">Save Project</h3>
-                    <p className="text-sm text-gray-500 mb-4">Set a 4-digit password to protect your project.</p>
+                    <h3 className="font-bold text-lg mb-2">프로젝트 저장</h3>
+                    <p className="text-sm text-gray-500 mb-4">프로젝트를 보호하기 위해 4자리 비밀번호를 설정하세요.</p>
                     <input
                         type="password"
                         maxLength={4}
-                        placeholder="Password (4 digits)"
+                        placeholder="비밀번호 (4자리)"
                         className="w-full p-2 border rounded mb-4"
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                     />
                     <div className="flex justify-end gap-2">
-                        <button onClick={() => setShowSaveModal(false)} className="px-3 py-1 text-gray-500 hover:bg-gray-100 rounded">Cancel</button>
-                        <button onClick={handleSave} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">Save</button>
+                        <button onClick={() => setShowSaveModal(false)} className="px-3 py-1 text-gray-500 hover:bg-gray-100 rounded">취소</button>
+                        <button onClick={handleSave} className="px-3 py-1 bg-blue-600 text-white rounded hover:bg-blue-700">저장</button>
                     </div>
                 </div>
             )}

@@ -3,14 +3,14 @@ import { useDraggable } from '@dnd-kit/core';
 import { Type, Image, Video, Calendar, MapPin, Link, List, LayoutGrid } from 'lucide-react';
 
 const blockTypes = [
-    { type: 'text', label: 'Text', icon: <Type size={20} /> },
-    { type: 'image', label: 'Image', icon: <Image size={20} /> },
-    { type: 'video', label: 'Video', icon: <Video size={20} /> },
-    { type: 'schedule', label: 'Schedule', icon: <Calendar size={20} /> },
-    { type: 'map', label: 'Map', icon: <MapPin size={20} /> },
-    { type: 'button', label: 'Button', icon: <Link size={20} /> },
-    { type: 'list', label: 'List', icon: <List size={20} /> },
-    { type: 'gallery', label: 'Gallery', icon: <LayoutGrid size={20} /> },
+    { type: 'text', label: '텍스트', icon: <Type size={20} /> },
+    { type: 'image', label: '이미지', icon: <Image size={20} /> },
+    { type: 'video', label: '동영상', icon: <Video size={20} /> },
+    { type: 'schedule', label: '일정', icon: <Calendar size={20} /> },
+    { type: 'map', label: '지도', icon: <MapPin size={20} /> },
+    { type: 'button', label: '버튼', icon: <Link size={20} /> },
+    { type: 'list', label: '목록', icon: <List size={20} /> },
+    { type: 'gallery', label: '갤러리', icon: <LayoutGrid size={20} /> },
 ];
 
 const DraggableBlock = ({ type, label, icon }) => {
@@ -40,7 +40,7 @@ const DraggableBlock = ({ type, label, icon }) => {
 const BlockList = () => {
     return (
         <div className="p-4 h-full overflow-y-auto">
-            <h2 className="text-lg font-semibold mb-4 text-gray-900">Blocks</h2>
+            <h2 className="text-lg font-semibold mb-4 text-gray-900">블록 도구</h2>
             <div className="grid grid-cols-1 gap-3">
                 {blockTypes.map((block) => (
                     <DraggableBlock key={block.type} {...block} />

@@ -7,7 +7,7 @@ const initialState = {
     blocks: [], // Array of block objects { id, type, content, styles }
     selectedBlockId: null,
     projectMeta: {
-        title: 'My Project',
+        title: '나의 프로젝트',
         theme: 'light',
     },
     view: 'landing', // 'landing' | 'editor' | 'preview'

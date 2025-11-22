@@ -85,7 +85,7 @@ const Canvas = () => {
                 >
                     {state.blocks.length === 0 ? (
                         <div className="h-full flex flex-col items-center justify-center text-gray-400 border-2 border-dashed border-gray-200 rounded-xl m-4">
-                            <p>Drag blocks here</p>
+                            <p>블록을 이곳으로 드래그하세요</p>
                         </div>
                     ) : (
                         state.blocks.map((block) => (
