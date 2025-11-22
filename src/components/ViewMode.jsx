@@ -19,16 +19,43 @@ const ViewMode = ({ uuid }) => {
 
                     // Update document title and meta tags for social sharing
                     if (content.metadata) {
-                        document.title = `${content.metadata.type} - ${content.metadata.title}`;
+                        const shareTitle = `${content.metadata.type}  "${content.metadata.title}"`;
+                        const shareDescription = content.metadata.description || content.metadata.title;
 
-                        // Update meta tags
-                        let metaDescription = document.querySelector('meta[name="description"]');
-                        if (!metaDescription) {
-                            metaDescription = document.createElement('meta');
-                            metaDescription.name = 'description';
-                            document.head.appendChild(metaDescription);
-                        }
-                        metaDescription.content = content.metadata.description || content.metadata.title;
+                        document.title = shareTitle;
+
+                        // Update or create meta tags
+                        const updateMetaTag = (property, content) => {
+                            let metaTag = document.querySelector(`meta[property="${property}"]`);
+                            if (!metaTag) {
+                                metaTag = document.createElement('meta');
+                                metaTag.setAttribute('property', property);
+                                document.head.appendChild(metaTag);
+                            }
+                            metaTag.setAttribute('content', content);
+                        };
+
+                        const updateNameMetaTag = (name, content) => {
+                            let metaTag = document.querySelector(`meta[name="${name}"]`);
+                            if (!metaTag) {
+                                metaTag = document.createElement('meta');
+                                metaTag.setAttribute('name', name);
+                                document.head.appendChild(metaTag);
+                            }
+                            metaTag.setAttribute('content', content);
+                        };
+
+                        // Open Graph tags
+                        updateMetaTag('og:title', shareTitle);
+                        updateMetaTag('og:description', shareDescription);
+                        updateMetaTag('og:type', 'article');
+
+                        // KakaoTalk specific tags
+                        updateMetaTag('kakao:title', shareTitle);
+                        updateMetaTag('kakao:description', shareDescription);
+
+                        // Standard meta description
+                        updateNameMetaTag('description', shareDescription);
                     }
                 } else {
                     setError('콘텐츠를 찾을 수 없습니다. URL이 유효하지 않거나 만료되었을 수 있습니다.');
