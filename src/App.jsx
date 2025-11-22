@@ -12,16 +12,27 @@ import ViewMode from './components/ViewMode';
 const AppContent = () => {
   const { state, dispatch } = useEditor();
   const [isViewMode, setIsViewMode] = useState(false);
+  const [viewUuid, setViewUuid] = useState(null);
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get('view') === 'true') {
-      setIsViewMode(true);
+    const viewParam = params.get('view');
+
+    if (viewParam) {
+      // Check if it's a UUID (new format) or 'true' (old format)
+      if (viewParam === 'true') {
+        // Old format: view=true with data parameter
+        setIsViewMode(true);
+      } else {
+        // New format: view=<uuid>
+        setViewUuid(viewParam);
+        setIsViewMode(true);
+      }
     }
   }, []);
 
   if (isViewMode) {
-    return <ViewMode />;
+    return <ViewMode uuid={viewUuid} />;
   }
 
   const sensors = useSensors(

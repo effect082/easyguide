@@ -69,10 +69,18 @@ const Landing = () => {
     };
 
     const handleDeleteProject = (projectId) => {
-        if (window.confirm('정말 삭제하시겠습니까?')) {
-            const updatedProjects = projects.filter(p => p.id !== projectId);
-            setProjects(updatedProjects);
-            localStorage.setItem('my_projects', JSON.stringify(updatedProjects));
+        const project = projects.find(p => p.id === projectId);
+        if (!project) return;
+
+        const enteredPassword = prompt('삭제하려면 비밀번호를 입력하세요 (4자리):');
+        if (enteredPassword === project.password) {
+            if (window.confirm('정말 삭제하시겠습니까?')) {
+                const updatedProjects = projects.filter(p => p.id !== projectId);
+                setProjects(updatedProjects);
+                localStorage.setItem('my_projects', JSON.stringify(updatedProjects));
+            }
+        } else if (enteredPassword !== null) {
+            alert('비밀번호가 일치하지 않습니다.');
         }
     };
 
@@ -109,8 +117,8 @@ const Landing = () => {
                             key={tab}
                             onClick={() => setActiveTab(tab)}
                             className={`pb-3 px-1 font-medium transition-colors ${activeTab === tab
-                                    ? 'text-blue-600 border-b-2 border-blue-600'
-                                    : 'text-gray-500 hover:text-gray-700'
+                                ? 'text-blue-600 border-b-2 border-blue-600'
+                                : 'text-gray-500 hover:text-gray-700'
                                 }`}
                         >
                             {tab}
@@ -136,8 +144,8 @@ const Landing = () => {
                             <div className="p-4">
                                 <div className="flex items-center gap-2 mb-2">
                                     <span className={`px-2 py-1 text-xs font-medium rounded ${project.category === '팀'
-                                            ? 'bg-green-100 text-green-700'
-                                            : 'bg-blue-100 text-blue-700'
+                                        ? 'bg-green-100 text-green-700'
+                                        : 'bg-blue-100 text-blue-700'
                                         }`}>
                                         {project.category}
                                     </span>
@@ -193,8 +201,8 @@ const Landing = () => {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, category: cat })}
                                             className={`py-3 rounded-lg border-2 font-medium transition-all ${formData.category === cat
-                                                    ? 'bg-blue-50 border-blue-500 text-blue-700'
-                                                    : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                                                ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                                : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
                                                 }`}
                                         >
                                             {cat}
@@ -213,8 +221,8 @@ const Landing = () => {
                                             type="button"
                                             onClick={() => setFormData({ ...formData, type })}
                                             className={`py-3 rounded-lg border-2 font-medium transition-all text-sm ${formData.type === type
-                                                    ? 'bg-blue-50 border-blue-500 text-blue-700'
-                                                    : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
+                                                ? 'bg-blue-50 border-blue-500 text-blue-700'
+                                                : 'bg-white border-gray-300 text-gray-700 hover:border-gray-400'
                                                 }`}
                                         >
                                             {type}
