@@ -46,56 +46,68 @@ const Header = () => {
     };
 
     const handlePublish = () => {
-        // Prioritize Share block metadata, fall back to Head block
-        const shareBlock = state.blocks.find(b => b.type === 'share');
-        const headBlock = state.blocks.find(b => b.type === 'head');
+        try {
+            // Prioritize Share block metadata, fall back to Head block
+            const shareBlock = state.blocks.find(b => b.type === 'share');
+            const headBlock = state.blocks.find(b => b.type === 'head');
 
-        let publishMetadata;
+            let publishMetadata;
 
-        if (shareBlock && shareBlock.content.shareTitle) {
-            // Use Share block metadata
-            publishMetadata = {
-                type: shareBlock.content.shareType || state.projectMeta.type || '뉴스레터',
-                title: shareBlock.content.shareTitle,
-                description: shareBlock.content.shareDescription || '',
-                image: shareBlock.content.shareImage || '',
+            if (shareBlock && shareBlock.content && shareBlock.content.shareTitle) {
+                // Use Share block metadata
+                publishMetadata = {
+                    type: shareBlock.content.shareType || state.projectMeta.type || '뉴스레터',
+                    title: shareBlock.content.shareTitle,
+                    description: shareBlock.content.shareDescription || '',
+                    image: shareBlock.content.shareImage || '',
+                };
+            } else if (headBlock && headBlock.content) {
+                // Fall back to Head block metadata
+                publishMetadata = {
+                    type: state.projectMeta.type || '뉴스레터',
+                    title: headBlock.content.title || state.projectMeta.title || '제목 없음',
+                    description: headBlock.content.description || '',
+                    image: '',
+                };
+            } else {
+                // Default metadata
+                publishMetadata = {
+                    type: state.projectMeta.type || '뉴스레터',
+                    title: state.projectMeta.title || '제목 없음',
+                    description: '',
+                    image: '',
+                };
+            }
+
+            // Create publish data with blocks and metadata
+            const publishData = {
+                blocks: state.blocks,
+                metadata: publishMetadata
             };
-        } else if (headBlock) {
-            // Fall back to Head block metadata
-            publishMetadata = {
-                type: state.projectMeta.type || '뉴스레터',
-                title: headBlock.content.title || state.projectMeta.title || '제목 없음',
-                description: headBlock.content.description || '',
-                image: '',
-            };
-        } else {
-            // Default metadata
-            publishMetadata = {
-                type: state.projectMeta.type || '뉴스레터',
-                title: state.projectMeta.title || '제목 없음',
-                description: '',
-                image: '',
-            };
+
+            // Encode data for URL
+            const jsonData = JSON.stringify(publishData);
+
+            // Check if data is too large (URL length limit)
+            if (jsonData.length > 50000) {
+                alert('콘텐츠가 너무 커서 게시할 수 없습니다.\n이미지 블록의 수를 줄이거나 이미지 URL을 사용해주세요.');
+                return;
+            }
+
+            const encoded = btoa(encodeURIComponent(jsonData));
+
+            // Generate URL
+            const baseUrl = window.location.origin + window.location.pathname;
+            const url = `${baseUrl}?view=shared&data=${encoded}`;
+
+            setPublishedUuid(encoded.substring(0, 20));
+            setPublishedUrl(url);
+            setMetadata(publishMetadata);
+            setShowPublishModal(true);
+        } catch (error) {
+            console.error('Publish error:', error);
+            alert('게시 중 오류가 발생했습니다.\n콘텐츠가 너무 크거나 유효하지 않은 데이터가 포함되어 있을 수 있습니다.');
         }
-
-        // Create publish data with blocks and metadata
-        const publishData = {
-            blocks: state.blocks,
-            metadata: publishMetadata
-        };
-
-        // Encode data for URL
-        const jsonData = JSON.stringify(publishData);
-        const encoded = btoa(encodeURIComponent(jsonData));
-
-        // Generate URL
-        const baseUrl = window.location.origin + window.location.pathname;
-        const url = `${baseUrl}?view=shared&data=${encoded}`;
-
-        setPublishedUuid(encoded.substring(0, 20)); // Use part of encoded string as ID
-        setPublishedUrl(url);
-        setMetadata(publishMetadata);
-        setShowPublishModal(true);
     };
 
     const handleCopyUrl = () => {
@@ -159,7 +171,7 @@ const Header = () => {
                 <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
                     <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">프로젝트 저장</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">게시 완료</h2>
                             <button
                                 onClick={() => setShowPublishModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -169,7 +181,7 @@ const Header = () => {
                         </div>
 
                         <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-600 mb-2">프로젝트를 보호하기 위해 4자리 비밀번호를 설정하세요.</p>
+                            <p className="text-sm text-gray-600 mb-2">소셜 공유 정보</p>
                             <div className="flex items-center gap-2">
                                 <span className="px-3 py-1 bg-white rounded text-sm font-medium text-gray-700">
                                     {metadata.type}
@@ -177,13 +189,13 @@ const Header = () => {
                                 <span className="text-gray-600 text-sm">"{metadata.title}"</span>
                             </div>
                             {metadata.description && (
-                                <p className="text-sm text-gray-500 mt-2">{metadata.description}</p>
+                                <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">{metadata.description}</p>
                             )}
                         </div>
 
                         {/* QR Code */}
-                        <div className="flex flex-col items-center mb-6 p-6 bg-gray-50 rounded-lg">
-                            <p className="text-sm font-medium text-gray-700 mb-4">또는 이미지 URL 입력</p>
+                        <div className="flex flex-col items-center mb-6 p- bg-gray-50 rounded-lg">
+                            <p className="text-sm font-medium text-gray-700 mb-4">QR 코드</p>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <QRCodeSVG
                                     id="qr-code-svg"
@@ -204,7 +216,7 @@ const Header = () => {
 
                         {/* Shortened URL */}
                         <div className="mb-6">
-                            <label className="block text-sm font-medium text-gray-700 mb-2">짧은 URL (전달사항)</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">공유 URL</label>
                             <div className="flex gap-2">
                                 <input
                                     type="text"
@@ -220,23 +232,7 @@ const Header = () => {
                                     복사
                                 </button>
                             </div>
-                            <p className="text-xs text-gray-400 mt-2">이미지를 클릭했을 때 이동할 URL을 입력하세요</p>
-                        </div>
-
-                        {/* Block Management */}
-                        <div className="border-t pt-6">
-                            <h3 className="text-sm font-medium text-gray-700 mb-3">블록 관리</h3>
-                            <div className="flex gap-2">
-                                <button className="flex-1 py-2 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors">
-                                    ↑ 위로 이동
-                                </button>
-                                <button className="flex-1 py-2 border border-gray-200 rounded text-sm hover:bg-gray-50 transition-colors">
-                                    ↓ 아래로 이동
-                                </button>
-                            </div>
-                            <button className="w-full mt-3 py-2 bg-red-50 text-red-600 rounded text-sm hover:bg-red-100 font-medium">
-                                블록 삭제
-                            </button>
+                            <p className="text-xs text-gray-400 mt-2">이 URL을 카카오톡이나 소셜 미디어에 공유하세요</p>
                         </div>
                     </div>
                 </div>
