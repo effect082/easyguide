@@ -171,8 +171,8 @@ const PropertyPanel = () => {
                     </>
                 )}
 
-                {/* Image/Video Block */}
-                {(selectedBlock.type === 'image' || selectedBlock.type === 'video') && (
+                {/* Image Block */}
+                {selectedBlock.type === 'image' && (
                     <>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">이미지 업로드</label>
@@ -193,19 +193,42 @@ const PropertyPanel = () => {
                                 placeholder="https://..."
                             />
                         </div>
-                        {selectedBlock.type === 'image' && (
-                            <div>
-                                <label className="block text-sm font-medium text-gray-700 mb-1">링크 URL (선택사항)</label>
-                                <input
-                                    type="text"
-                                    value={values.link || ''}
-                                    onChange={(e) => handleChange('link', e.target.value)}
-                                    className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                    placeholder="https://..."
-                                />
-                                <p className="text-xs text-gray-400 mt-1">이미지를 클릭했을 때 이동할 URL을 입력하세요</p>
-                            </div>
-                        )}
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">링크 URL (선택사항)</label>
+                            <input
+                                type="text"
+                                value={values.link || ''}
+                                onChange={(e) => handleChange('link', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="https://..."
+                            />
+                            <p className="text-xs text-gray-400 mt-1">이미지를 클릭했을 때 이동할 URL을 입력하세요</p>
+                        </div>
+                    </>
+                )}
+
+                {/* Video Block */}
+                {selectedBlock.type === 'video' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">영상 업로드</label>
+                            <input
+                                type="file"
+                                accept="video/*"
+                                onChange={(e) => handleImageUpload(e, 'src')}
+                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">또는 영상 URL 입력</label>
+                            <input
+                                type="text"
+                                value={values.src || ''}
+                                onChange={(e) => handleChange('src', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="https://..."
+                            />
+                        </div>
                     </>
                 )}
 
@@ -223,7 +246,7 @@ const PropertyPanel = () => {
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">이미지 목록</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">슬라이드 이미지</label>
                             {(values.images || []).map((img, idx) => (
                                 <div key={idx} className="flex gap-2 mb-2">
                                     <input
@@ -364,7 +387,7 @@ const PropertyPanel = () => {
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">갤러리 이미지 관리</label>
                             <div className="mb-3">
-                                <label className="block text-xs text-gray-500 mb-1">이미지 추가 (업로드)</label>
+                                <label className="block text-xs text-gray-500 mb-1">이미지 업로드</label>
                                 <input
                                     type="file"
                                     accept="image/*"
