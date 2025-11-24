@@ -4,6 +4,7 @@ const LinkBlock = ({ content, styles }) => {
     const { title = 'Link Button', url = '#' } = content;
     const {
         backgroundColor = '#ffffff',
+        hoverBackgroundColor = null, // Custom hover color
         color = '#000000',
         fontSize = 'medium',
         textAlign = 'center',
@@ -22,20 +23,20 @@ const LinkBlock = ({ content, styles }) => {
         }
     };
 
-    // Calculate hover color (darken for light colors, lighten for dark colors)
+    // Use custom hover color if provided, otherwise auto-calculate
     const getHoverBackgroundColor = (bgColor) => {
-        // Simple approach: darken by reducing brightness
-        // For a more sophisticated approach, we could convert to HSL and adjust
+        if (hoverBackgroundColor) {
+            return hoverBackgroundColor;
+        }
+
+        // Auto-calculate: darken for light colors, lighten for dark colors
         if (bgColor.startsWith('#')) {
             const hex = bgColor.replace('#', '');
             const r = parseInt(hex.substr(0, 2), 16);
             const g = parseInt(hex.substr(2, 2), 16);
             const b = parseInt(hex.substr(4, 2), 16);
 
-            // Calculate brightness
             const brightness = (r * 299 + g * 587 + b * 114) / 1000;
-
-            // Darken if bright, lighten if dark
             const factor = brightness > 128 ? 0.9 : 1.1;
 
             const newR = Math.min(255, Math.max(0, Math.floor(r * factor)));

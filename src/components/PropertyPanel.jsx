@@ -892,6 +892,17 @@ const PropertyPanel = () => {
                                     </div>
                                 </div>
                                 <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">호버 배경 색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.hoverBackgroundColor || styles.backgroundColor || '#ffffff'}
+                                            onChange={(e) => handleStyleChange('hoverBackgroundColor', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">텍스트 색상</label>
                                     <div className="flex items-center gap-2">
                                         <input
