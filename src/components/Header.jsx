@@ -154,6 +154,19 @@ const Header = () => {
                 >
                     <ArrowLeft size={20} />
                 </button>
+                <div className="flex items-center gap-2">
+                    <label className="text-sm font-medium text-gray-600">배경색:</label>
+                    <input
+                        type="color"
+                        value={state.projectMeta.backgroundColor || '#ffffff'}
+                        onChange={(e) => dispatch({
+                            type: 'SET_PROJECT_META',
+                            payload: { backgroundColor: e.target.value }
+                        })}
+                        className="w-10 h-10 p-1 border border-gray-300 rounded cursor-pointer"
+                        title="전체 배경색 선택"
+                    />
+                </div>
                 <h1 className="text-xl font-bold text-gray-800">{state.projectMeta.title}</h1>
             </div>
 
