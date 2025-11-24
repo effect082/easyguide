@@ -4,22 +4,22 @@ const LinkBlock = ({ content, styles }) => {
     const { title = 'Link Button', url = '#' } = content;
     const {
         backgroundColor = '#ffffff',
-        hoverBackgroundColor = null, // Custom hover color
+        hoverBackgroundColor = null,
         color = '#000000',
         fontSize = 'medium',
         textAlign = 'center',
         fontWeight = 'normal',
-        borderRadius = '8px'
+        borderRadius = '16px'
     } = styles || {};
 
     const [isHovered, setIsHovered] = useState(false);
 
     const getFontSize = (size) => {
         switch (size) {
-            case 'small': return '0.875rem';
-            case 'medium': return '1rem';
+            case 'small': return '1rem';
+            case 'medium': return '1.125rem';
             case 'large': return '1.25rem';
-            default: return '1rem';
+            default: return '1.125rem';
         }
     };
 
@@ -49,7 +49,7 @@ const LinkBlock = ({ content, styles }) => {
     };
 
     return (
-        <div style={{ padding: '10px 20px', textAlign }}>
+        <div style={{ padding: '8px 0' }}>
             <a
                 href={url}
                 target="_blank"
@@ -57,9 +57,9 @@ const LinkBlock = ({ content, styles }) => {
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{
-                    display: 'inline-block',
+                    display: 'block',
                     width: '100%',
-                    padding: '12px 20px',
+                    padding: '18px 24px',
                     backgroundColor: isHovered ? getHoverBackgroundColor(backgroundColor) : backgroundColor,
                     color: color,
                     textDecoration: 'none',
@@ -68,11 +68,12 @@ const LinkBlock = ({ content, styles }) => {
                     fontWeight: fontWeight,
                     textAlign: 'center',
                     boxShadow: isHovered
-                        ? '0 8px 16px rgba(0,0,0,0.2)'
-                        : '0 2px 4px rgba(0,0,0,0.1)',
-                    transform: isHovered ? 'translateY(-4px)' : 'translateY(0)',
+                        ? '0 8px 16px rgba(0,0,0,0.15)'
+                        : '0 2px 6px rgba(0,0,0,0.08)',
+                    transform: isHovered ? 'translateY(-3px)' : 'translateY(0)',
                     transition: 'all 0.3s ease',
-                    cursor: 'pointer'
+                    cursor: 'pointer',
+                    border: 'none'
                 }}
             >
                 {title}
