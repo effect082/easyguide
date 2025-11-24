@@ -11,6 +11,7 @@ import BusinessBlock from './BusinessBlock';
 import ScheduleBlock from './ScheduleBlock';
 import MapBlock from './MapBlock';
 import ShareBlock from './ShareBlock';
+import LinkBlock from './LinkBlock';
 
 const BlockRenderer = ({ block }) => {
     switch (block.type) {
@@ -38,6 +39,8 @@ const BlockRenderer = ({ block }) => {
             return <MapBlock content={block.content} styles={block.styles} />;
         case 'share':
             return <ShareBlock content={block.content} styles={block.styles} />;
+        case 'link':
+            return <LinkBlock content={block.content} styles={block.styles} />;
         default:
             return <div className="p-4 text-center text-gray-400">Unknown Block Type: {block.type}</div>;
     }

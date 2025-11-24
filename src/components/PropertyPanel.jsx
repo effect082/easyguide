@@ -2,6 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { useEditor } from '../context/EditorContext';
 import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 
+// PropertyPanel component - handles block properties and styling
+
 const PropertyPanel = () => {
     const { state, dispatch } = useEditor();
     const selectedBlock = state.blocks.find(b => b.id === state.selectedBlockId);
@@ -71,8 +73,41 @@ const PropertyPanel = () => {
 
     if (!selectedBlock) {
         return (
-            <div className="p-6 text-center text-gray-500">
-                <p>편집할 블록을 선택하세요.</p>
+            <div className="p-4 h-full overflow-y-auto">
+                <h2 className="text-lg font-semibold mb-6 border-b pb-2">프로젝트 설정</h2>
+
+                <div className="space-y-6">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">전체 배경 색상</label>
+                        <div className="flex items-center gap-2">
+                            <input
+                                type="color"
+                                value={state.projectMeta.backgroundColor || '#ffffff'}
+                                onChange={(e) => dispatch({
+                                    type: 'SET_PROJECT_META',
+                                    payload: { backgroundColor: e.target.value }
+                                })}
+                                className="w-8 h-8 p-0 border rounded cursor-pointer"
+                            />
+                            <span className="text-xs text-gray-400">
+                                {state.projectMeta.backgroundColor || '#ffffff'}
+                            </span>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label className="block text-sm font-medium text-gray-700 mb-1">프로젝트 제목</label>
+                        <input
+                            type="text"
+                            value={state.projectMeta.title || ''}
+                            onChange={(e) => dispatch({
+                                type: 'SET_PROJECT_META',
+                                payload: { title: e.target.value }
+                            })}
+                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                        />
+                    </div>
+                </div>
             </div>
         );
     }
@@ -110,8 +145,60 @@ const PropertyPanel = () => {
                         <textarea
                             value={values.text || ''}
                             onChange={(e) => handleChange('text', e.target.value)}
-                            className="w-full p-2 border border-gray-300 rounded-md h-32 text-sm font-mono"
+                            className="w-full p-2 border border-gray-300 rounded-md h-32 text-sm font-mono mb-4"
                         />
+
+                        <div className="space-y-4 border-t pt-4">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                    <select
+                                        value={styles.textAlign || 'left'}
+                                        onChange={(e) => handleStyleChange('textAlign', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="left">왼쪽</option>
+                                        <option value="center">중앙</option>
+                                        <option value="right">오른쪽</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                    <select
+                                        value={styles.fontSize || 'medium'}
+                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="small">작게</option>
+                                        <option value="medium">보통</option>
+                                        <option value="large">크게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                    <select
+                                        value={styles.fontWeight || 'normal'}
+                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="normal">보통</option>
+                                        <option value="bold">굵게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.color || '#000000'}
+                                            onChange={(e) => handleStyleChange('color', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 )}
 
@@ -296,39 +383,105 @@ const PropertyPanel = () => {
                             <label className="block text-sm font-medium text-gray-700 mb-1">버튼 텍스트</label>
                             <input
                                 type="text"
-                                value={values.buttonText || 'Submit'}
+                                value={values.buttonText || '제출'}
                                 onChange={(e) => handleChange('buttonText', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
                             />
                         </div>
+
+                        <div className="space-y-4 border-t pt-4 my-4">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                    <select
+                                        value={styles.textAlign || 'left'}
+                                        onChange={(e) => handleStyleChange('textAlign', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="left">왼쪽</option>
+                                        <option value="center">중앙</option>
+                                        <option value="right">오른쪽</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                    <select
+                                        value={styles.fontSize || 'medium'}
+                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="small">작게</option>
+                                        <option value="medium">보통</option>
+                                        <option value="large">크게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                    <select
+                                        value={styles.fontWeight || 'normal'}
+                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="normal">보통</option>
+                                        <option value="bold">굵게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.color || '#000000'}
+                                            onChange={(e) => handleStyleChange('color', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">입력 필드</label>
                             {(values.fields || []).map((field, idx) => (
-                                <div key={idx} className="flex gap-2 mb-2">
+                                <div key={idx} className="mb-2 p-2 border border-gray-100 rounded bg-gray-50">
+                                    <div className="flex gap-2 mb-1">
+                                        <input
+                                            type="text"
+                                            placeholder="라벨 (예: 이름)"
+                                            value={field.label || ''}
+                                            onChange={(e) => {
+                                                const newFields = [...(values.fields || [])];
+                                                newFields[idx] = { ...field, label: e.target.value };
+                                                handleChange('fields', newFields);
+                                            }}
+                                            className="w-1/3 p-1 border border-gray-300 rounded text-xs font-bold"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const newFields = values.fields.filter((_, i) => i !== idx);
+                                                handleChange('fields', newFields);
+                                            }}
+                                            className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded"
+                                        >
+                                            <Trash2 size={14} />
+                                        </button>
+                                    </div>
                                     <input
                                         type="text"
-                                        placeholder="Placeholder"
+                                        placeholder="플레이스홀더 (예: 이름을 입력하세요)"
                                         value={field.placeholder || ''}
                                         onChange={(e) => {
                                             const newFields = [...(values.fields || [])];
                                             newFields[idx] = { ...field, placeholder: e.target.value };
                                             handleChange('fields', newFields);
                                         }}
-                                        className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
+                                        className="w-full p-1 border border-gray-300 rounded text-xs"
                                     />
-                                    <button
-                                        onClick={() => {
-                                            const newFields = values.fields.filter((_, i) => i !== idx);
-                                            handleChange('fields', newFields);
-                                        }}
-                                        className="text-red-500 hover:bg-red-50 p-2 rounded"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
                                 </div>
                             ))}
                             <button
-                                onClick={() => handleChange('fields', [...(values.fields || []), { placeholder: '' }])}
+                                onClick={() => handleChange('fields', [...(values.fields || []), { label: '', placeholder: '' }])}
                                 className="w-full py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-100"
                             >
                                 + 입력 필드 추가
@@ -461,6 +614,59 @@ const PropertyPanel = () => {
                                 placeholder="사업에 대한 상세 설명을 입력하세요."
                             />
                         </div>
+
+                        <div className="space-y-4 border-t pt-4 my-4">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                    <select
+                                        value={styles.textAlign || 'left'}
+                                        onChange={(e) => handleStyleChange('textAlign', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="left">왼쪽</option>
+                                        <option value="center">중앙</option>
+                                        <option value="right">오른쪽</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                    <select
+                                        value={styles.fontSize || 'medium'}
+                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="small">작게</option>
+                                        <option value="medium">보통</option>
+                                        <option value="large">크게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                    <select
+                                        value={styles.fontWeight || 'normal'}
+                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="normal">보통</option>
+                                        <option value="bold">굵게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.color || '#000000'}
+                                            onChange={(e) => handleStyleChange('color', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
                             <div className="flex justify-between items-center mb-2">
                                 <label className="block text-sm font-medium text-gray-700">상세 항목 (이용 대상, 이용료 등)</label>
@@ -518,70 +724,208 @@ const PropertyPanel = () => {
                 {selectedBlock.type === 'schedule' && (
                     <>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">일정 제목</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">행사명</label>
                             <input
                                 type="text"
                                 value={values.title || ''}
                                 onChange={(e) => handleChange('title', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="예: 결혼식, 돌잔치, 모임"
+                                placeholder="예: 행사 일시"
                             />
                         </div>
+
+                        <div className="space-y-4 border-t pt-4 my-4">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                    <select
+                                        value={styles.textAlign || 'left'}
+                                        onChange={(e) => handleStyleChange('textAlign', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="left">왼쪽</option>
+                                        <option value="center">중앙</option>
+                                        <option value="right">오른쪽</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                    <select
+                                        value={styles.fontSize || 'medium'}
+                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="small">작게</option>
+                                        <option value="medium">보통</option>
+                                        <option value="large">크게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                    <select
+                                        value={styles.fontWeight || 'normal'}
+                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="normal">보통</option>
+                                        <option value="bold">굵게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.color || '#000000'}
+                                            onChange={(e) => handleStyleChange('color', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-2">상세 항목</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-2">일정 항목</label>
                             {(values.items || []).map((item, idx) => (
-                                <div key={idx} className="mb-2 p-2 border border-gray-100 rounded bg-gray-50 relative">
+                                <div key={idx} className="mb-3 p-3 border border-gray-200 rounded bg-gray-50 relative">
                                     <button
                                         onClick={() => {
                                             const newItems = values.items.filter((_, i) => i !== idx);
                                             handleChange('items', newItems);
                                         }}
-                                        className="absolute top-1 right-1 text-red-500 hover:bg-red-50 p-1 rounded"
+                                        className="absolute top-2 right-2 text-red-500 hover:bg-red-50 p-1 rounded"
                                     >
                                         <Trash2 size={14} />
                                     </button>
-                                    <div className="flex gap-2 mb-1 pr-6">
-                                        <input
-                                            type="text"
-                                            placeholder="시간 (예: 14:00)"
-                                            value={item.time}
-                                            onChange={(e) => {
-                                                const newItems = [...(values.items || [])];
-                                                newItems[idx] = { ...item, time: e.target.value };
-                                                handleChange('items', newItems);
-                                            }}
-                                            className="w-1/3 p-1 border border-gray-300 rounded text-xs font-bold"
-                                        />
-                                        <input
-                                            type="text"
-                                            placeholder="이벤트명 (예: 본식 시작)"
-                                            value={item.event}
-                                            onChange={(e) => {
-                                                const newItems = [...(values.items || [])];
-                                                newItems[idx] = { ...item, event: e.target.value };
-                                                handleChange('items', newItems);
-                                            }}
-                                            className="flex-1 p-1 border border-gray-300 rounded text-xs"
-                                        />
+                                    <div className="space-y-2 pr-8">
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">시작</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={item.startTime || ''}
+                                                onChange={(e) => {
+                                                    const newItems = [...(values.items || [])];
+                                                    newItems[idx] = { ...item, startTime: e.target.value };
+                                                    handleChange('items', newItems);
+                                                }}
+                                                className="w-full p-2 border border-gray-300 rounded text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">종료</label>
+                                            <input
+                                                type="datetime-local"
+                                                value={item.endTime || ''}
+                                                onChange={(e) => {
+                                                    const newItems = [...(values.items || [])];
+                                                    newItems[idx] = { ...item, endTime: e.target.value };
+                                                    handleChange('items', newItems);
+                                                }}
+                                                className="w-full p-2 border border-gray-300 rounded text-sm"
+                                            />
+                                        </div>
+                                        <div>
+                                            <label className="block text-xs font-medium text-gray-600 mb-1">장소</label>
+                                            <input
+                                                type="text"
+                                                placeholder="예: 복지관 1층 대강당"
+                                                value={item.location || ''}
+                                                onChange={(e) => {
+                                                    const newItems = [...(values.items || [])];
+                                                    newItems[idx] = { ...item, location: e.target.value };
+                                                    handleChange('items', newItems);
+                                                }}
+                                                className="w-full p-2 border border-gray-300 rounded text-sm"
+                                            />
+                                        </div>
                                     </div>
-                                    <textarea
-                                        placeholder="설명 (선택사항)"
-                                        value={item.description || ''}
-                                        onChange={(e) => {
-                                            const newItems = [...(values.items || [])];
-                                            newItems[idx] = { ...item, description: e.target.value };
-                                            handleChange('items', newItems);
-                                        }}
-                                        className="w-full p-1 border border-gray-300 rounded text-xs h-12"
-                                    />
                                 </div>
                             ))}
                             <button
-                                onClick={() => handleChange('items', [...(values.items || []), { time: '', event: '', description: '' }])}
-                                className="w-full py-2 border border-blue-200 text-blue-600 rounded-md text-xs hover:bg-blue-50 mt-2"
+                                onClick={() => handleChange('items', [...(values.items || []), { startTime: '', endTime: '', location: '' }])}
+                                className="w-full py-2 border border-blue-200 text-blue-600 rounded-md text-sm hover:bg-blue-50 mt-2"
                             >
-                                + 항목 추가하기
+                                + 일정 추가하기
                             </button>
+                        </div>
+                    </>
+                )}
+
+                {/* Link Block */}
+                {selectedBlock.type === 'link' && (
+                    <>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">버튼 텍스트</label>
+                            <input
+                                type="text"
+                                value={values.title || ''}
+                                onChange={(e) => handleChange('title', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="예: 홈페이지 바로가기"
+                            />
+                        </div>
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">링크 URL</label>
+                            <input
+                                type="text"
+                                value={values.url || ''}
+                                onChange={(e) => handleChange('url', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                placeholder="https://..."
+                            />
+                        </div>
+
+                        <div className="space-y-4 border-t pt-4 my-4">
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">버튼 스타일</h4>
+                            <div className="grid grid-cols-2 gap-4">
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">배경 색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.backgroundColor || '#ffffff'}
+                                            onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">텍스트 색상</label>
+                                    <div className="flex items-center gap-2">
+                                        <input
+                                            type="color"
+                                            value={styles.color || '#000000'}
+                                            onChange={(e) => handleStyleChange('color', e.target.value)}
+                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                        />
+                                    </div>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                    <select
+                                        value={styles.fontSize || 'medium'}
+                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="small">작게</option>
+                                        <option value="medium">보통</option>
+                                        <option value="large">크게</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                    <select
+                                        value={styles.fontWeight || 'normal'}
+                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                    >
+                                        <option value="normal">보통</option>
+                                        <option value="bold">굵게</option>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
                     </>
                 )}
@@ -596,7 +940,7 @@ const PropertyPanel = () => {
                                 value={values.placeName || ''}
                                 onChange={(e) => handleChange('placeName', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="예: 중앙공원"
+                                placeholder="예: 서울시청"
                             />
                         </div>
                         <div>
@@ -606,8 +950,9 @@ const PropertyPanel = () => {
                                 value={values.address || ''}
                                 onChange={(e) => handleChange('address', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="예: 서울시 강남구 테헤란로 123"
+                                placeholder="예: 서울특별시 중구 세종대로 110"
                             />
+                            <p className="text-xs text-gray-400 mt-1">정확한 주소를 입력해야 지도가 올바르게 표시됩니다.</p>
                         </div>
                     </>
                 )}
@@ -616,73 +961,65 @@ const PropertyPanel = () => {
                 {selectedBlock.type === 'share' && (
                     <>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">콘텐츠 유형</label>
-                            <select
-                                value={values.shareType || '뉴스레터'}
-                                onChange={(e) => handleChange('shareType', e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                            >
-                                <option value="뉴스레터">뉴스레터</option>
-                                <option value="홍보">홍보</option>
-                                <option value="초대장">초대장</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">제목</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">공유 제목</label>
                             <input
                                 type="text"
                                 value={values.shareTitle || ''}
                                 onChange={(e) => handleChange('shareTitle', e.target.value)}
                                 className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="예: 강동어울림복지관 개관 1주년 행사"
+                                placeholder="공유될 때 표시될 제목"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">설명</label>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">공유 설명</label>
                             <textarea
                                 value={values.shareDescription || ''}
                                 onChange={(e) => handleChange('shareDescription', e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                rows="4"
-                                placeholder="예: 복지관 개관 1주년 행사에 여러분을 초대합니다."
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm h-20"
+                                placeholder="공유될 때 표시될 설명"
                             />
                         </div>
                         <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">썸네일 이미지</label>
-                            <input
-                                type="file"
-                                accept="image/*"
-                                onChange={(e) => handleImageUpload(e, 'shareImage')}
-                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">또는 이미지 URL 입력</label>
-                            <input
-                                type="text"
-                                value={values.shareImage || ''}
-                                onChange={(e) => handleChange('shareImage', e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="https://..."
-                            />
+                            <label className="block text-sm font-medium text-gray-700 mb-1">공유 썸네일 이미지</label>
+                            <div className="mb-2">
+                                <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => handleImageUpload(e, 'shareImage')}
+                                    className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                                />
+                            </div>
+                            {values.shareImage && (
+                                <div className="mt-2">
+                                    <img src={values.shareImage} alt="Share Thumbnail" className="w-full h-32 object-cover rounded border" />
+                                    <button
+                                        onClick={() => handleChange('shareImage', '')}
+                                        className="text-xs text-red-500 mt-1 hover:underline"
+                                    >
+                                        이미지 제거
+                                    </button>
+                                </div>
+                            )}
                         </div>
                     </>
                 )}
 
-                {/* Block Management */}
-                <div className="pt-6 mt-6 border-t border-gray-100">
-                    <h3 className="text-xs font-medium text-gray-500 mb-3">블록 관리</h3>
-                    <div className="flex gap-2 mb-3">
-                        <button onClick={() => handleMove('up')} className="flex-1 py-2 border border-gray-200 rounded text-sm hover:bg-gray-50 flex justify-center items-center gap-1">
-                            <ArrowUp size={14} /> 위로 이동
+                <div className="pt-6 border-t mt-6">
+                    <h3 className="text-sm font-medium text-gray-700 mb-2">블록 관리</h3>
+                    <div className="flex gap-2">
+                        <button
+                            onClick={() => handleMove('up')}
+                            className="flex-1 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 flex justify-center items-center gap-1"
+                        >
+                            <ArrowUp size={16} /> 위로
                         </button>
-                        <button onClick={() => handleMove('down')} className="flex-1 py-2 border border-gray-200 rounded text-sm hover:bg-gray-50 flex justify-center items-center gap-1">
-                            <ArrowDown size={14} /> 아래로 이동
+                        <button
+                            onClick={() => handleMove('down')}
+                            className="flex-1 py-2 bg-gray-100 text-gray-600 rounded hover:bg-gray-200 flex justify-center items-center gap-1"
+                        >
+                            <ArrowDown size={16} /> 아래로
                         </button>
                     </div>
-                    <button onClick={handleDelete} className="w-full py-2 bg-red-50 text-red-600 rounded text-sm hover:bg-red-100 font-medium">
-                        블록 삭제
-                    </button>
                 </div>
             </div>
         </div>

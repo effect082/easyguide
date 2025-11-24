@@ -77,7 +77,8 @@ const Canvas = () => {
             {/* Scrollable Content Area */}
             <div
                 ref={setNodeRef}
-                className="h-full overflow-y-auto pt-10 pb-20 px-4 scrollbar-hide bg-gray-50"
+                className="h-full overflow-y-auto pt-10 pb-20 px-4 scrollbar-hide"
+                style={{ backgroundColor: state.projectMeta.backgroundColor || '#f9fafb' }}
             >
                 <SortableContext
                     items={state.blocks.map(b => b.id)}

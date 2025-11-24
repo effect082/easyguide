@@ -14,6 +14,7 @@ const initialState = {
         password: null,
         author: '',
         theme: 'light',
+        backgroundColor: '#ffffff',
     },
     view: 'landing', // 'landing' | 'editor' | 'preview'
 };
@@ -24,8 +25,23 @@ const editorReducer = (state, action) => {
             const newBlock = {
                 id: uuidv4(),
                 type: action.payload.blockType || action.payload.type,
-                content: action.payload.defaultContent || {},
-                styles: {},
+                content: action.payload.defaultContent || (action.payload.blockType === 'form' ? {
+                    title: '입력 폼',
+                    buttonText: '제출하기',
+                    fields: [
+                        { label: '이름', placeholder: '이름을 입력하세요', type: 'text' },
+                        { label: '전화번호', placeholder: '전화번호를 입력하세요', type: 'tel' }
+                    ]
+                } : action.payload.blockType === 'link' ? {
+                    title: '❤️ 홈페이지',
+                    url: 'https://'
+                } : {}),
+                styles: action.payload.blockType === 'link' ? {
+                    backgroundColor: '#ffffff',
+                    color: '#000000',
+                    textAlign: 'center',
+                    borderRadius: '8px'
+                } : {},
             };
             return {
                 ...state,

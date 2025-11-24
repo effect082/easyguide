@@ -3,6 +3,7 @@ import { useDraggable } from '@dnd-kit/core';
 import { Type, Image, Video, Calendar, MapPin, Link, List, LayoutGrid, Share2 } from 'lucide-react';
 import { useEditor } from '../context/EditorContext';
 
+// All available block types for the sidebar
 const blockTypes = [
     { type: 'head', label: '헤드(제목)', icon: <Type size={20} /> },
     { type: 'text', label: '텍스트', icon: <Type size={20} /> },
@@ -14,8 +15,8 @@ const blockTypes = [
     { type: 'schedule', label: '일정', icon: <Calendar size={20} /> },
     { type: 'map', label: '지도', icon: <MapPin size={20} /> },
     { type: 'form', label: '입력폼', icon: <List size={20} /> },
-    { type: 'social', label: '소셜미디어', icon: <Link size={20} /> },
-    { type: 'share', label: '공유설정', icon: <Share2 size={20} /> },
+    { type: 'link', label: '링크 버튼', icon: <Link size={20} /> },
+    { type: 'share', label: '공유하기', icon: <Share2 size={20} /> },
 ];
 
 const DraggableBlock = ({ type, label, icon }) => {
@@ -53,6 +54,9 @@ const DraggableBlock = ({ type, label, icon }) => {
 };
 
 const BlockList = () => {
+    // Log to confirm this component is loading with all blocks
+    console.log('BlockList loaded with', blockTypes.length, 'block types');
+
     return (
         <div className="p-4 h-full overflow-y-auto">
             <h2 className="text-lg font-semibold mb-4 text-gray-900">블록 도구</h2>

@@ -1,40 +1,53 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
-import Layout from './components/Layout';
-import BlockList from './components/BlockList';
-import Canvas from './components/Canvas';
-import PropertyPanel from './components/PropertyPanel';
-import Landing from './components/Landing';
-import ViewMode from './components/ViewMode';
+
+// Lazy load components
+const Layout = React.lazy(() => import('./components/Layout'));
+const BlockList = React.lazy(() => import('./components/BlockList'));
+const Canvas = React.lazy(() => import('./components/Canvas'));
+const PropertyPanel = React.lazy(() => import('./components/PropertyPanel'));
+const Landing = React.lazy(() => import('./components/Landing'));
+const ViewMode = React.lazy(() => import('./components/ViewMode'));
+
+const LoadingFallback = () => (
+  <div className="min-h-screen flex items-center justify-center bg-gray-50">
+    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+  </div>
+);
 
 const AppContent = () => {
   const { state, dispatch } = useEditor();
-  const [isViewMode, setIsViewMode] = useState(false);
-  const [viewUuid, setViewUuid] = useState(null);
 
-  useEffect(() => {
-    const params = new URLSearchParams(window.location.search);
-    const viewParam = params.get('view');
+  const [isViewMode, setIsViewMode] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
+    return !!(searchParams.get('view') || searchParams.get('project') || hashParams.get('view') || hashParams.get('project'));
+  });
 
-    if (viewParam) {
-      // Check if it's a UUID (new format) or 'true' (old format)
-      if (viewParam === 'true') {
-        // Old format: view=true with data parameter
-        setIsViewMode(true);
-      } else {
-        // New format: view=<uuid>
-        setViewUuid(viewParam);
-        setIsViewMode(true);
-      }
-    }
-  }, []);
+  const [viewUuid, setViewUuid] = useState(() => {
+    const searchParams = new URLSearchParams(window.location.search);
+    const hashParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
 
+    const projectParam = searchParams.get('project') || hashParams.get('project');
+    const viewParam = searchParams.get('view') || hashParams.get('view');
+
+    if (projectParam) return projectParam;
+    if (viewParam === 'true') return null;
+    return viewParam || null;
+  });
+
+  // 1. View Mode (Public Access)
   if (isViewMode) {
-    return <ViewMode uuid={viewUuid} />;
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <ViewMode uuid={viewUuid} />
+      </Suspense>
+    );
   }
 
+  // 2. Main Application (No Authentication Required)
   const sensors = useSensors(
     useSensor(PointerSensor, {
       activationConstraint: {
@@ -70,16 +83,22 @@ const AppContent = () => {
   };
 
   if (state.view === 'landing') {
-    return <Landing />;
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <Landing />
+      </Suspense>
+    );
   }
 
   return (
     <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-      <Layout
-        leftPanel={<BlockList />}
-        canvas={<Canvas />}
-        rightPanel={<PropertyPanel />}
-      />
+      <Suspense fallback={<LoadingFallback />}>
+        <Layout
+          leftPanel={<BlockList />}
+          canvas={<Canvas />}
+          rightPanel={<PropertyPanel />}
+        />
+      </Suspense>
       <DragOverlay>
         {/* Optional: Custom drag preview */}
       </DragOverlay>

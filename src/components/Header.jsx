@@ -3,6 +3,7 @@ import { useEditor } from '../context/EditorContext';
 import { Share, ArrowLeft, Save, Copy, Download, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { v4 as uuidv4 } from 'uuid';
+import { storage } from '../services/storage';
 
 const Header = () => {
     const { state, dispatch } = useEditor();
@@ -11,68 +12,79 @@ const Header = () => {
     const [publishedUuid, setPublishedUuid] = useState('');
     const [metadata, setMetadata] = useState({ type: '', title: '', description: '' });
 
-    const handleSave = () => {
-        const saved = JSON.parse(localStorage.getItem('my_projects') || '[]');
-        const existingIndex = saved.findIndex(p => p.id === state.projectMeta.id);
+    const handleSave = async () => {
+        try {
+            // Fetch existing projects to preserve createdAt
+            let createdAt = new Date().toISOString();
+            try {
+                const projects = await storage.getProjects();
+                const existing = projects.find(p => p.id === state.projectMeta.id);
+                if (existing) {
+                    createdAt = existing.createdAt;
+                }
+            } catch (e) {
+                console.warn("Failed to fetch existing projects, using new createdAt");
+            }
 
-        const project = {
-            id: state.projectMeta.id || Date.now().toString(),
-            title: state.projectMeta.title,
-            category: state.projectMeta.category,
-            type: state.projectMeta.type,
-            password: state.projectMeta.password,
-            author: state.projectMeta.author,
-            blocks: state.blocks,
-            createdAt: existingIndex >= 0 ? saved[existingIndex].createdAt : new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-        };
+            const project = {
+                id: state.projectMeta.id || Date.now().toString(),
+                title: state.projectMeta.title,
+                category: state.projectMeta.category,
+                type: state.projectMeta.type,
+                password: state.projectMeta.password,
+                author: state.projectMeta.author,
+                blocks: state.blocks,
+                createdAt: createdAt,
+                updatedAt: new Date().toISOString(),
+            };
 
-        if (existingIndex >= 0) {
-            saved[existingIndex] = project;
-        } else {
-            saved.push(project);
-        }
+            await storage.saveProject(project);
+            alert('프로젝트가 저장되었습니다!');
 
-        localStorage.setItem('my_projects', JSON.stringify(saved));
-        alert('프로젝트가 저장되었습니다!');
-
-        // Update the project meta with the saved ID
-        if (!state.projectMeta.id) {
-            dispatch({
-                type: 'SET_PROJECT_META',
-                payload: { id: project.id }
-            });
+            // Update the project meta with the saved ID
+            if (!state.projectMeta.id) {
+                dispatch({
+                    type: 'SET_PROJECT_META',
+                    payload: { id: project.id }
+                });
+            }
+        } catch (error) {
+            console.error('Save failed:', error);
+            alert('저장에 실패했습니다.');
         }
     };
 
-    const handlePublish = () => {
+    const handlePublish = async () => {
         try {
-            // Prioritize Share block metadata, fall back to Head block
-            const shareBlock = state.blocks.find(b => b.type === 'share');
+            // Find first image from blocks for og:image
+            const firstImageBlock = state.blocks.find(b => b.type === 'image' && b.content?.src);
+            const firstImageUrl = firstImageBlock?.content?.src || '';
+
+            // Find Head block for title and description
             const headBlock = state.blocks.find(b => b.type === 'head');
+
+            // Find Share block for override
+            const shareBlock = state.blocks.find(b => b.type === 'share');
 
             let publishMetadata;
 
+            // Priority: Share Block > Head Block > Project Meta
             if (shareBlock && shareBlock.content && shareBlock.content.shareTitle) {
                 publishMetadata = {
                     type: shareBlock.content.shareType || state.projectMeta.type || '뉴스레터',
                     title: shareBlock.content.shareTitle,
                     description: shareBlock.content.shareDescription || '',
-                    image: shareBlock.content.shareImage || '',
-                };
-            } else if (headBlock && headBlock.content) {
-                publishMetadata = {
-                    type: state.projectMeta.type || '뉴스레터',
-                    title: headBlock.content.title || state.projectMeta.title || '제목 없음',
-                    description: headBlock.content.description || '',
-                    image: '',
+                    image: shareBlock.content.shareImage || firstImageUrl,
+                    backgroundColor: state.projectMeta.backgroundColor || '#ffffff',
                 };
             } else {
+                // Default fallback logic as requested: Head Block Title + Image Block Image
                 publishMetadata = {
                     type: state.projectMeta.type || '뉴스레터',
-                    title: state.projectMeta.title || '제목 없음',
-                    description: '',
-                    image: '',
+                    title: headBlock?.content?.title || state.projectMeta.title || '제목 없음',
+                    description: headBlock?.content?.description || '',
+                    image: firstImageUrl,
+                    backgroundColor: state.projectMeta.backgroundColor || '#ffffff',
                 };
             }
 
@@ -88,14 +100,13 @@ const Header = () => {
                 publishedAt: new Date().toISOString(),
             };
 
-            // Save to localStorage
-            const publishedContent = JSON.parse(localStorage.getItem('published_content') || '{}');
-            publishedContent[uuid] = publishData;
-            localStorage.setItem('published_content', JSON.stringify(publishedContent));
+            // Save via storage service (Supabase)
+            await storage.publishContent(uuid, publishData);
 
-            // Generate short URL
+            // Generate short URL with query parameter routing
             const baseUrl = window.location.origin + window.location.pathname;
-            const url = `${baseUrl}?project=${uuid}`;
+            const cleanBaseUrl = baseUrl.split('?')[0].split('#')[0];
+            const url = `${cleanBaseUrl}?project=${uuid}`;
 
             setPublishedUuid(uuid);
             setPublishedUrl(url);
@@ -103,7 +114,7 @@ const Header = () => {
             setShowPublishModal(true);
         } catch (error) {
             console.error('Publish error:', error);
-            alert('게시 중 오류가 발생했습니다.');
+            alert(error.message || '게시 중 오류가 발생했습니다.');
         }
     };
 
@@ -230,6 +241,66 @@ const Header = () => {
                                 </button>
                             </div>
                             <p className="text-xs text-gray-400 mt-2">이 URL을 카카오톡이나 소셜 미디어에 공유하세요</p>
+                        </div>
+
+                        {/* Kakao Share Button */}
+                        <div className="mt-6 pt-6 border-t border-gray-100">
+                            <button
+                                onClick={() => {
+                                    if (!window.Kakao) {
+                                        alert('Kakao SDK가 로드되지 않았습니다.');
+                                        return;
+                                    }
+                                    if (!window.Kakao.isInitialized()) {
+                                        // Replace with your actual Kakao JavaScript Key
+                                        // You can also put this in .env as VITE_KAKAO_JS_KEY
+                                        const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY || 'YOUR_KAKAO_JAVASCRIPT_KEY';
+                                        try {
+                                            window.Kakao.init(KAKAO_KEY);
+                                        } catch (e) {
+                                            console.error('Kakao init failed:', e);
+                                            alert('카카오톡 SDK 초기화에 실패했습니다. 키를 확인해주세요.');
+                                            return;
+                                        }
+                                    }
+
+                                    const shareUrl = publishedUrl;
+                                    const shareTitle = metadata.title;
+                                    const shareDescription = metadata.description;
+                                    const shareImage = metadata.image;
+
+                                    window.Kakao.Share.sendDefault({
+                                        objectType: 'feed',
+                                        content: {
+                                            title: shareTitle,
+                                            description: shareDescription,
+                                            imageUrl: shareImage,
+                                            link: {
+                                                mobileWebUrl: shareUrl,
+                                                webUrl: shareUrl,
+                                            },
+                                        },
+                                        buttons: [
+                                            {
+                                                title: '자세히 보기',
+                                                link: {
+                                                    mobileWebUrl: shareUrl,
+                                                    webUrl: shareUrl,
+                                                },
+                                            },
+                                        ],
+                                    });
+                                }}
+                                className="w-full py-3 bg-[#FEE500] text-[#000000] rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
+                            >
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M12 3C5.925 3 1 6.925 1 11.775C1 14.85 3.025 17.55 6.05 19.05L5.025 22.725C4.95 23.025 5.25 23.25 5.55 23.025L9.975 20.1C10.625 20.25 11.3 20.325 12 20.325C18.075 20.325 23 16.4 23 11.55C23 6.7 18.075 3 12 3Z" />
+                                </svg>
+                                카카오톡으로 공유하기
+                            </button>
+                            <p className="text-xs text-gray-400 mt-2 text-center">
+                                * 카카오톡 공유가 동작하지 않으면 .env 파일에 VITE_KAKAO_JS_KEY를 설정해주세요.
+                            </p>
                         </div>
                     </div>
                 </div>

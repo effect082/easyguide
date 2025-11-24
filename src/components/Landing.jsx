@@ -1,13 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useEditor } from '../context/EditorContext';
 import { Plus, X } from 'lucide-react';
+import { storage } from '../services/storage';
 
 const Landing = () => {
     const { dispatch } = useEditor();
-    const [projects, setProjects] = useState(() => {
-        const saved = localStorage.getItem('my_projects');
-        return saved ? JSON.parse(saved) : [];
-    });
+    const [projects, setProjects] = useState([]);
+    const [isLoading, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState('전체'); // 전체, 개인, 팀
     const [formData, setFormData] = useState({
@@ -18,7 +17,24 @@ const Landing = () => {
         author: ''
     });
 
-    const handleCreateProject = () => {
+    useEffect(() => {
+        loadProjects();
+    }, []);
+
+    const loadProjects = async () => {
+        try {
+            setIsLoading(true);
+            const data = await storage.getProjects();
+            setProjects(data);
+        } catch (error) {
+            console.error('Failed to load projects:', error);
+            alert('프로젝트를 불러오는데 실패했습니다.');
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleCreateProject = async () => {
         if (!formData.title || !formData.password || !formData.author) {
             alert('모든 필드를 입력해주세요.');
             return;
@@ -41,22 +57,26 @@ const Landing = () => {
             updatedAt: new Date().toISOString()
         };
 
-        const updatedProjects = [...projects, newProject];
-        setProjects(updatedProjects);
-        localStorage.setItem('my_projects', JSON.stringify(updatedProjects));
+        try {
+            await storage.saveProject(newProject);
+            setProjects([...projects, newProject]);
 
-        // Load project into editor
-        dispatch({ type: 'LOAD_PROJECT', payload: newProject });
+            // Load project into editor
+            dispatch({ type: 'LOAD_PROJECT', payload: newProject });
 
-        // Reset form
-        setFormData({
-            title: '',
-            category: '개인',
-            type: '뉴스레터',
-            password: '',
-            author: ''
-        });
-        setShowModal(false);
+            // Reset form
+            setFormData({
+                title: '',
+                category: '개인',
+                type: '뉴스레터',
+                password: '',
+                author: ''
+            });
+            setShowModal(false);
+        } catch (error) {
+            console.error('Failed to create project:', error);
+            alert('프로젝트 생성에 실패했습니다.');
+        }
     };
 
     const handleEditProject = (project) => {
@@ -68,16 +88,20 @@ const Landing = () => {
         }
     };
 
-    const handleDeleteProject = (projectId) => {
+    const handleDeleteProject = async (projectId) => {
         const project = projects.find(p => p.id === projectId);
         if (!project) return;
 
         const enteredPassword = prompt('삭제하려면 비밀번호를 입력하세요 (4자리):');
         if (enteredPassword === project.password) {
             if (window.confirm('정말 삭제하시겠습니까?')) {
-                const updatedProjects = projects.filter(p => p.id !== projectId);
-                setProjects(updatedProjects);
-                localStorage.setItem('my_projects', JSON.stringify(updatedProjects));
+                try {
+                    await storage.deleteProject(projectId);
+                    setProjects(projects.filter(p => p.id !== projectId));
+                } catch (error) {
+                    console.error('Failed to delete project:', error);
+                    alert(`프로젝트 삭제에 실패했습니다.\n오류: ${error.message || error}`);
+                }
             }
         } else if (enteredPassword !== null) {
             alert('비밀번호가 일치하지 않습니다.');
@@ -98,7 +122,7 @@ const Landing = () => {
         <div className="min-h-screen bg-gray-50 p-8">
             <div className="max-w-6xl mx-auto">
                 <div className="flex justify-between items-center mb-8">
-                    <h1 className="text-3xl font-bold text-gray-900">내 프로젝트</h1>
+                    <h1 className="text-3xl font-bold text-gray-900">모바일 콘텐츠 통합 관리</h1>
                     <button
                         onClick={() => setShowModal(true)}
                         className="px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2 font-medium"
