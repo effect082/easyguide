@@ -14,7 +14,6 @@ const blockTypes = [
     { type: 'business', label: '사업안내', icon: <List size={20} /> },
     { type: 'schedule', label: '일정', icon: <Calendar size={20} /> },
     { type: 'map', label: '지도', icon: <MapPin size={20} /> },
-    { type: 'form', label: '입력폼', icon: <List size={20} /> },
     { type: 'link', label: '링크 버튼', icon: <Link size={20} /> },
     { type: 'share', label: '공유하기', icon: <Share2 size={20} /> },
 ];
