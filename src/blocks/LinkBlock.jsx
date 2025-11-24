@@ -9,7 +9,9 @@ const LinkBlock = ({ content, styles }) => {
         fontSize = 'medium',
         textAlign = 'center',
         fontWeight = 'normal',
-        borderRadius = '16px'
+        borderRadius = '16px',
+        paddingVertical = '18px',
+        paddingHorizontal = '24px'
     } = styles || {};
 
     const [isHovered, setIsHovered] = useState(false);
@@ -49,7 +51,7 @@ const LinkBlock = ({ content, styles }) => {
     };
 
     return (
-        <div style={{ padding: '8px 0' }}>
+        <div style={{ padding: '0', marginBottom: '0' }}>
             <a
                 href={url}
                 target="_blank"
@@ -59,7 +61,7 @@ const LinkBlock = ({ content, styles }) => {
                 style={{
                     display: 'block',
                     width: '100%',
-                    padding: '18px 24px',
+                    padding: `${paddingVertical} ${paddingHorizontal}`,
                     backgroundColor: isHovered ? getHoverBackgroundColor(backgroundColor) : backgroundColor,
                     color: color,
                     textDecoration: 'none',

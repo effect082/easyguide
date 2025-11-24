@@ -937,6 +937,42 @@ const PropertyPanel = () => {
                                     </select>
                                 </div>
                             </div>
+
+                            <div className="border-t pt-4 mt-4">
+                                <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">버튼 크기</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">위아래 여백</label>
+                                        <select
+                                            value={styles.paddingVertical || '18px'}
+                                            onChange={(e) => handleStyleChange('paddingVertical', e.target.value)}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="8px">작게 (8px)</option>
+                                            <option value="12px">약간 작게 (12px)</option>
+                                            <option value="16px">보통 (16px)</option>
+                                            <option value="18px">약간 크게 (18px)</option>
+                                            <option value="24px">크게 (24px)</option>
+                                            <option value="32px">매우 크게 (32px)</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">좌우 여백</label>
+                                        <select
+                                            value={styles.paddingHorizontal || '24px'}
+                                            onChange={(e) => handleStyleChange('paddingHorizontal', e.target.value)}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="12px">작게 (12px)</option>
+                                            <option value="16px">약간 작게 (16px)</option>
+                                            <option value="20px">보통 (20px)</option>
+                                            <option value="24px">약간 크게 (24px)</option>
+                                            <option value="32px">크게 (32px)</option>
+                                            <option value="48px">매우 크게 (48px)</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </>
                 )}
