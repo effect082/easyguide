@@ -46,4 +46,10 @@ const BlockRenderer = ({ block }) => {
     }
 };
 
-export default BlockRenderer;
+// Optimize with React.memo to prevent unnecessary re-renders
+export default React.memo(BlockRenderer, (prevProps, nextProps) => {
+    return prevProps.block.id === nextProps.block.id &&
+        JSON.stringify(prevProps.block.content) === JSON.stringify(nextProps.block.content) &&
+        JSON.stringify(prevProps.block.styles) === JSON.stringify(nextProps.block.styles);
+});
+

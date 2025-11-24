@@ -45,6 +45,7 @@ const SlideBlock = ({ content, styles }) => {
                         key={index}
                         src={src}
                         alt={`Slide ${index + 1}`}
+                        loading="lazy"
                         className="w-full h-auto object-cover flex-shrink-0"
                     />
                 ))}

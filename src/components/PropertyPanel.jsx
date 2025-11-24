@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useEditor } from '../context/EditorContext';
 import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
+import { compressImage, formatFileSize } from '../utils/imageCompression';
 
 // PropertyPanel component - handles block properties and styling
 
@@ -60,14 +61,39 @@ const PropertyPanel = () => {
         dispatch({ type: 'REORDER_BLOCKS', payload: newBlocks });
     };
 
-    const handleImageUpload = (e, key = 'src') => {
+    const [isCompressing, setIsCompressing] = useState(false);
+
+    const handleImageUpload = async (e, key = 'src') => {
         const file = e.target.files[0];
-        if (file) {
-            const reader = new FileReader();
-            reader.onloadend = () => {
-                handleChange(key, reader.result);
-            };
-            reader.readAsDataURL(file);
+        if (!file) return;
+
+        // Check if it's an image
+        if (!file.type.startsWith('image/')) {
+            alert('이미지 파일만 업로드 가능합니다.');
+            return;
+        }
+
+        setIsCompressing(true);
+
+        try {
+            const result = await compressImage(file);
+
+            // Log compression results
+            console.log(`✅ Image compressed:`, {
+                original: formatFileSize(result.originalSize),
+                compressed: formatFileSize(result.compressedSize),
+                reduction: `${result.reduction}%`,
+                dimensions: `${result.width}x${result.height}`
+            });
+
+            // Update block with compressed image
+            handleChange(key, result.dataUrl);
+
+        } catch (error) {
+            console.error('Image compression failed:', error);
+            alert('이미지 압축 실패. 다시 시도해주세요.');
+        } finally {
+            setIsCompressing(false);
         }
     };
 

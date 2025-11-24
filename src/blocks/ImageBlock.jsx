@@ -8,6 +8,7 @@ const ImageBlock = ({ content, styles }) => {
         <img
             src={src || 'https://placehold.co/600x400?text=No+Image'}
             alt="Block Content"
+            loading="lazy"
             className="w-full h-auto object-cover"
             style={{ borderRadius }}
         />
