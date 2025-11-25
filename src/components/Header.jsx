@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useEditor } from '../context/EditorContext';
-import { Share, ArrowLeft, Save, Copy, Download, X } from 'lucide-react';
+import { Share, ArrowLeft, Save, Copy, Download, X, Loader2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from '../services/storage';
@@ -9,6 +9,7 @@ import { compressDataUrl } from '../utils/imageCompression';
 const Header = () => {
     const { state, dispatch } = useEditor();
     const [showPublishModal, setShowPublishModal] = useState(false);
+    const [isPublishing, setIsPublishing] = useState(false);
     const [publishedUrl, setPublishedUrl] = useState('');
     const [publishedUuid, setPublishedUuid] = useState('');
     const [metadata, setMetadata] = useState({ type: '', title: '', description: '' });
@@ -56,16 +57,70 @@ const Header = () => {
     };
 
     const handlePublish = async () => {
+        if (isPublishing) return;
+
         try {
+            setIsPublishing(true);
+
+            // Generate UUID for this publication
+            const uuid = uuidv4();
+
+            // Deep copy blocks to avoid mutating state
+            const blocksToPublish = JSON.parse(JSON.stringify(state.blocks));
+
+            // Compress images in blocks
+            for (const block of blocksToPublish) {
+                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
+                    try {
+                        block.content.src = await compressDataUrl(block.content.src, 600, 0.6);
+                    } catch (e) {
+                        console.warn('Failed to compress image:', e);
+                    }
+                } else if (block.type === 'gallery' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img, 600, 0.6);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress gallery images:', e);
+                    }
+                } else if (block.type === 'slide' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img, 600, 0.6);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress slide images:', e);
+                    }
+                } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
+                    try {
+                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 600, 0.6);
+                    } catch (e) {
+                        console.warn('Failed to compress share image:', e);
+                    }
+                }
+            }
+
+            // Extract metadata from COMPRESSED blocks
             // Find first image from blocks for og:image
-            const firstImageBlock = state.blocks.find(b => b.type === 'image' && b.content?.src);
+            const firstImageBlock = blocksToPublish.find(b => b.type === 'image' && b.content?.src);
             const firstImageUrl = firstImageBlock?.content?.src || '';
 
             // Find Head block for title and description
-            const headBlock = state.blocks.find(b => b.type === 'head');
+            const headBlock = blocksToPublish.find(b => b.type === 'head');
 
             // Find Share block for override
-            const shareBlock = state.blocks.find(b => b.type === 'share');
+            const shareBlock = blocksToPublish.find(b => b.type === 'share');
 
             let publishMetadata;
 
@@ -87,49 +142,6 @@ const Header = () => {
                     image: firstImageUrl,
                     backgroundColor: state.projectMeta.backgroundColor || '#ffffff',
                 };
-            }
-
-            // Generate UUID for this publication
-            const uuid = uuidv4();
-
-            // Deep copy blocks to avoid mutating state
-            const blocksToPublish = JSON.parse(JSON.stringify(state.blocks));
-
-            // Compress images in blocks
-            for (const block of blocksToPublish) {
-                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
-                    try {
-                        block.content.src = await compressDataUrl(block.content.src);
-                    } catch (e) {
-                        console.warn('Failed to compress image:', e);
-                    }
-                } else if (block.type === 'gallery' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress gallery images:', e);
-                    }
-                } else if (block.type === 'slide' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress slide images:', e);
-                    }
-                }
             }
 
             // Create publish data
@@ -156,6 +168,8 @@ const Header = () => {
         } catch (error) {
             console.error('Publish error:', error);
             alert(error.message || '게시 중 오류가 발생했습니다.');
+        } finally {
+            setIsPublishing(false);
         }
     };
 
@@ -221,10 +235,11 @@ const Header = () => {
                 </button>
                 <button
                     onClick={handlePublish}
-                    className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow"
+                    disabled={isPublishing}
+                    className={`flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg font-medium hover:bg-blue-700 transition-colors shadow-sm hover:shadow ${isPublishing ? 'opacity-50 cursor-not-allowed' : ''}`}
                 >
-                    <Share size={18} />
-                    게시
+                    {isPublishing ? <Loader2 size={18} className="animate-spin" /> : <Share size={18} />}
+                    {isPublishing ? '게시 중...' : '게시'}
                 </button>
             </div>
 
