@@ -80,7 +80,7 @@ export const formatFileSize = (bytes) => {
 /**
  * Compress a base64 data URL
  */
-export const compressDataUrl = async (dataUrl, maxWidth = 480, quality = 0.5) => {
+export const compressDataUrl = async (dataUrl, maxWidth = 320, quality = 0.4) => {
     return new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => {

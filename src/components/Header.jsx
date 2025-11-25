@@ -72,7 +72,7 @@ const Header = () => {
             for (const block of blocksToPublish) {
                 if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
                     try {
-                        block.content.src = await compressDataUrl(block.content.src, 480, 0.5);
+                        block.content.src = await compressDataUrl(block.content.src, 320, 0.4);
                     } catch (e) {
                         console.warn('Failed to compress image:', e);
                     }
@@ -81,7 +81,7 @@ const Header = () => {
                         block.content.images = await Promise.all(
                             block.content.images.map(async (img) => {
                                 if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 480, 0.5);
+                                    return await compressDataUrl(img, 320, 0.4);
                                 }
                                 return img;
                             })
@@ -94,7 +94,7 @@ const Header = () => {
                         block.content.images = await Promise.all(
                             block.content.images.map(async (img) => {
                                 if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 480, 0.5);
+                                    return await compressDataUrl(img, 320, 0.4);
                                 }
                                 return img;
                             })
@@ -104,7 +104,7 @@ const Header = () => {
                     }
                 } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
                     try {
-                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 480, 0.5);
+                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 320, 0.4);
                     } catch (e) {
                         console.warn('Failed to compress share image:', e);
                     }
@@ -157,8 +157,8 @@ const Header = () => {
             const payloadSize = JSON.stringify(publishData).length;
             console.log('Publish payload size:', (payloadSize / 1024 / 1024).toFixed(2), 'MB');
 
-            if (payloadSize > 3 * 1024 * 1024) { // 3MB limit
-                throw new Error(`프로젝트 용량이 너무 큽니다 (${(payloadSize / 1024 / 1024).toFixed(2)}MB). 이미지 개수를 줄이거나 크기를 줄여주세요.`);
+            if (payloadSize > 1 * 1024 * 1024) { // 1MB limit
+                throw new Error(`프로젝트 용량이 너무 큽니다 (${(payloadSize / 1024 / 1024).toFixed(2)}MB). 1MB를 초과했습니다. 이미지 개수를 줄여주세요.`);
             }
 
             // Save via storage service (Supabase)
