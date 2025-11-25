@@ -4,6 +4,7 @@ import { Share, ArrowLeft, Save, Copy, Download, X } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from '../services/storage';
+import { compressDataUrl } from '../utils/imageCompression';
 
 const Header = () => {
     const { state, dispatch } = useEditor();
@@ -91,11 +92,51 @@ const Header = () => {
             // Generate UUID for this publication
             const uuid = uuidv4();
 
+            // Deep copy blocks to avoid mutating state
+            const blocksToPublish = JSON.parse(JSON.stringify(state.blocks));
+
+            // Compress images in blocks
+            for (const block of blocksToPublish) {
+                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
+                    try {
+                        block.content.src = await compressDataUrl(block.content.src);
+                    } catch (e) {
+                        console.warn('Failed to compress image:', e);
+                    }
+                } else if (block.type === 'gallery' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress gallery images:', e);
+                    }
+                } else if (block.type === 'slide' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress slide images:', e);
+                    }
+                }
+            }
+
             // Create publish data
             const publishData = {
                 id: uuid,
                 projectId: state.projectMeta.id,
-                blocks: state.blocks,
+                blocks: blocksToPublish,
                 metadata: publishMetadata,
                 publishedAt: new Date().toISOString(),
             };
