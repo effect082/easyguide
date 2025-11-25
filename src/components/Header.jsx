@@ -50,7 +50,7 @@ const Header = () => {
             }
         } catch (error) {
             console.error('Save failed:', error);
-            alert('저장에 실패했습니다.');
+            alert(error.message || '저장에 실패했습니다.');
         }
     };
 

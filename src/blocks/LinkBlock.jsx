@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 
-const LinkBlock = ({ content, styles }) => {
+const LinkBlock = ({ content, styles, mode }) => {
     const { title = 'Link Button', url = '#' } = content;
     const {
         backgroundColor = '#ffffff',
@@ -10,18 +10,18 @@ const LinkBlock = ({ content, styles }) => {
         textAlign = 'center',
         fontWeight = 'normal',
         borderRadius = '16px',
-        paddingVertical = '18px',
-        paddingHorizontal = '24px'
+        paddingVertical = '12px',
+        paddingHorizontal = '16px'
     } = styles || {};
 
     const [isHovered, setIsHovered] = useState(false);
 
     const getFontSize = (size) => {
         switch (size) {
-            case 'small': return '1rem';
-            case 'medium': return '1.125rem';
-            case 'large': return '1.25rem';
-            default: return '1.125rem';
+            case 'small': return '0.875rem';
+            case 'medium': return '1rem';
+            case 'large': return '1.125rem';
+            default: return '1rem';
         }
     };
 
@@ -51,11 +51,16 @@ const LinkBlock = ({ content, styles }) => {
     };
 
     return (
-        <div style={{ padding: '0', marginBottom: '0' }}>
+        <div style={{ padding: '8px 0', marginBottom: '8px' }}>
             <a
                 href={url}
                 target="_blank"
                 rel="noopener noreferrer"
+                onClick={(e) => {
+                    if (mode === 'edit') {
+                        e.preventDefault();
+                    }
+                }}
                 onMouseEnter={() => setIsHovered(true)}
                 onMouseLeave={() => setIsHovered(false)}
                 style={{

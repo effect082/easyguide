@@ -1,6 +1,7 @@
 {
   "name": "mobilebuild",
   "private": true,
+  "homepage": "https://effect082.github.io/easyguide",
   "version": "0.0.0",
   "type": "module",
   "scripts": {

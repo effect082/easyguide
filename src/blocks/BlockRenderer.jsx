@@ -13,7 +13,7 @@ import MapBlock from './MapBlock';
 import ShareBlock from './ShareBlock';
 import LinkBlock from './LinkBlock';
 
-const BlockRenderer = ({ block }) => {
+const BlockRenderer = ({ block, mode }) => {
     switch (block.type) {
         case 'text':
             return <TextBlock content={block.content} styles={block.styles} />;
@@ -40,7 +40,7 @@ const BlockRenderer = ({ block }) => {
         case 'share':
             return <ShareBlock content={block.content} styles={block.styles} />;
         case 'link':
-            return <LinkBlock content={block.content} styles={block.styles} />;
+            return <LinkBlock content={block.content} styles={block.styles} mode={mode} />;
         default:
             return <div className="p-4 text-center text-gray-400">Unknown Block Type: {block.type}</div>;
     }
@@ -49,6 +49,7 @@ const BlockRenderer = ({ block }) => {
 // Optimize with React.memo to prevent unnecessary re-renders
 export default React.memo(BlockRenderer, (prevProps, nextProps) => {
     return prevProps.block.id === nextProps.block.id &&
+        prevProps.mode === nextProps.mode &&
         JSON.stringify(prevProps.block.content) === JSON.stringify(nextProps.block.content) &&
         JSON.stringify(prevProps.block.styles) === JSON.stringify(nextProps.block.styles);
 });

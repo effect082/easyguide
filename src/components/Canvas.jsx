@@ -45,7 +45,7 @@ const SortableBlock = ({ block }) => {
         >
             {/* Block Content Renderer */}
             <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-                <BlockRenderer block={block} />
+                <BlockRenderer block={block} mode="edit" />
             </div>
 
             {/* Controls (Visible on Hover/Select) */}
