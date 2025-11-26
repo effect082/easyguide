@@ -328,17 +328,39 @@ const Header = () => {
                             </button>
                         </div>
 
-                        <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                            <p className="text-sm text-gray-600 mb-2">소셜 공유 정보</p>
-                            <div className="flex items-center gap-2">
-                                <span className="px-3 py-1 bg-white rounded text-sm font-medium text-gray-700">
-                                    {metadata.type}
-                                </span>
-                                <span className="text-gray-600 text-sm">"{metadata.title}"</span>
+                        <div className="mb-6">
+                            <p className="text-sm font-medium text-gray-700 mb-2">카카오톡 공유 미리보기</p>
+                            <div className="bg-[#ABC1D1] p-4 rounded-lg max-w-sm mx-auto">
+                                <div className="bg-white rounded-lg overflow-hidden shadow-sm">
+                                    {/* Image Area */}
+                                    <div className="w-full h-48 bg-gray-100 relative">
+                                        {metadata.image ? (
+                                            <img
+                                                src={metadata.image}
+                                                alt="Preview"
+                                                className="w-full h-full object-cover"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
+                                                <span className="text-xs">이미지 없음</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Text Area */}
+                                    <div className="p-3">
+                                        <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
+                                            {metadata.title}
+                                        </h3>
+                                        <p className="text-xs text-gray-500 line-clamp-2 mb-2">
+                                            {metadata.description || '공유된 내용을 확인해 주십시오!!'}
+                                        </p>
+                                        <p className="text-[10px] text-gray-400">
+                                            {window.location.host}
+                                        </p>
+                                    </div>
+                                </div>
                             </div>
-                            {metadata.description && (
-                                <p className="text-sm text-gray-500 mt-2 whitespace-pre-wrap">{metadata.description}</p>
-                            )}
                         </div>
 
                         {/* QR Code */}
