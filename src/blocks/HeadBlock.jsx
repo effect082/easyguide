@@ -31,7 +31,7 @@ const HeadBlock = ({ content, styles }) => {
             </h2>
             {description && (
                 <p style={{
-                    fontSize: size === 'small' ? '0.75rem' : size === 'large' ? '1rem' : '0.875rem',
+                    fontSize: fontSize === 'small' ? '0.75rem' : fontSize === 'large' ? '1rem' : '0.875rem',
                     textAlign,
                     color: color || '#666666',
                     fontWeight: styles?.fontWeight || 'normal',
