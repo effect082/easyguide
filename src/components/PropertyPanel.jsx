@@ -249,7 +249,7 @@ const PropertyPanel = () => {
                             />
                         </div>
                         <div className="space-y-4 border-t pt-4 my-4">
-                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
+                            <h4 className="text-xs font-bold text-gray-500 uppercase">헤드/설명 스타일</h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
                                     <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>

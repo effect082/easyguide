@@ -31,10 +31,12 @@ const HeadBlock = ({ content, styles }) => {
             </h2>
             {description && (
                 <p style={{
-                    fontSize: '0.875rem',
+                    fontSize: size === 'small' ? '0.75rem' : size === 'large' ? '1rem' : '0.875rem',
                     textAlign,
-                    color: '#666666',
-                    whiteSpace: 'pre-wrap'
+                    color: color || '#666666',
+                    fontWeight: styles?.fontWeight || 'normal',
+                    whiteSpace: 'pre-wrap',
+                    opacity: 0.8
                 }}>
                     {description}
                 </p>
