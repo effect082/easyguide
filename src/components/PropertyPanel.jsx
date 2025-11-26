@@ -360,6 +360,25 @@ const PropertyPanel = () => {
                 {/* Video Block */}
                 {selectedBlock.type === 'video' && (
                     <>
+                        {values.src && (
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">영상 미리보기</label>
+                                <div className="relative border rounded-lg overflow-hidden bg-black">
+                                    <video
+                                        src={values.src}
+                                        controls
+                                        className="w-full h-48 object-contain"
+                                    />
+                                    <button
+                                        onClick={() => handleChange('src', '')}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-sm transition-colors z-10"
+                                        title="영상 삭제"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">영상 업로드</label>
                             <input
@@ -397,32 +416,43 @@ const PropertyPanel = () => {
                         </div>
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-2">슬라이드 이미지</label>
-                            {(values.images || []).map((img, idx) => (
-                                <div key={idx} className="flex gap-2 mb-2">
-                                    <input
-                                        type="text"
-                                        value={img}
-                                        onChange={(e) => {
-                                            const newImages = [...(values.images || [])];
-                                            newImages[idx] = e.target.value;
-                                            handleChange('images', newImages);
-                                        }}
-                                        className="flex-1 p-2 border border-gray-300 rounded-md text-sm"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            const newImages = values.images.filter((_, i) => i !== idx);
-                                            handleChange('images', newImages);
-                                        }}
-                                        className="text-red-500 hover:bg-red-50 p-2 rounded"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            ))}
+                            <div className="space-y-3">
+                                {(values.images || []).map((img, idx) => (
+                                    <div key={idx} className="border rounded-lg p-2 bg-gray-50">
+                                        <div className="relative mb-2 bg-white rounded border overflow-hidden h-32 flex items-center justify-center">
+                                            {img ? (
+                                                <img src={img} alt={`Slide ${idx + 1}`} className="w-full h-full object-contain" />
+                                            ) : (
+                                                <span className="text-gray-400 text-xs">이미지 없음</span>
+                                            )}
+                                            <button
+                                                onClick={() => {
+                                                    const newImages = values.images.filter((_, i) => i !== idx);
+                                                    handleChange('images', newImages);
+                                                }}
+                                                className="absolute top-2 right-2 bg-red-500 text-white p-1.5 rounded-full hover:bg-red-600 shadow-sm transition-colors"
+                                                title="삭제"
+                                            >
+                                                <Trash2 size={14} />
+                                            </button>
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={img}
+                                            onChange={(e) => {
+                                                const newImages = [...(values.images || [])];
+                                                newImages[idx] = e.target.value;
+                                                handleChange('images', newImages);
+                                            }}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                            placeholder="이미지 URL"
+                                        />
+                                    </div>
+                                ))}
+                            </div>
                             <button
                                 onClick={() => handleChange('images', [...(values.images || []), ''])}
-                                className="w-full py-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-100"
+                                className="w-full py-2 mt-2 bg-blue-50 text-blue-600 rounded-md text-sm font-medium hover:bg-blue-100"
                             >
                                 + 슬라이드 추가
                             </button>
@@ -620,31 +650,36 @@ const PropertyPanel = () => {
                                     className="w-full text-xs text-gray-500 file:mr-2 file:py-1 file:px-2 file:rounded-full file:border-0 file:text-xs file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
                                 />
                             </div>
-                            {(values.images || []).map((img, idx) => (
-                                <div key={idx} className="flex gap-2 mb-2 items-center">
-                                    <img src={img} alt="" className="w-8 h-8 object-cover rounded border" />
-                                    <input
-                                        type="text"
-                                        value={img}
-                                        onChange={(e) => {
-                                            const newImages = [...(values.images || [])];
-                                            newImages[idx] = e.target.value;
-                                            handleChange('images', newImages);
-                                        }}
-                                        className="flex-1 p-1 border border-gray-300 rounded text-xs"
-                                        placeholder="Image URL"
-                                    />
-                                    <button
-                                        onClick={() => {
-                                            const newImages = values.images.filter((_, i) => i !== idx);
-                                            handleChange('images', newImages);
-                                        }}
-                                        className="text-red-500 hover:bg-red-50 p-1 rounded"
-                                    >
-                                        <Trash2 size={14} />
-                                    </button>
-                                </div>
-                            ))}
+                            <div className="space-y-2">
+                                {(values.images || []).map((img, idx) => (
+                                    <div key={idx} className="flex gap-2 items-center p-2 border rounded bg-gray-50">
+                                        <div className="w-16 h-16 flex-shrink-0 bg-white border rounded overflow-hidden">
+                                            <img src={img} alt="" className="w-full h-full object-cover" />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            value={img}
+                                            onChange={(e) => {
+                                                const newImages = [...(values.images || [])];
+                                                newImages[idx] = e.target.value;
+                                                handleChange('images', newImages);
+                                            }}
+                                            className="flex-1 p-2 border border-gray-300 rounded text-xs"
+                                            placeholder="Image URL"
+                                        />
+                                        <button
+                                            onClick={() => {
+                                                const newImages = values.images.filter((_, i) => i !== idx);
+                                                handleChange('images', newImages);
+                                            }}
+                                            className="text-red-500 hover:bg-red-50 p-2 rounded"
+                                            title="삭제"
+                                        >
+                                            <Trash2 size={16} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
                             <button
                                 onClick={() => handleChange('images', [...(values.images || []), ''])}
                                 className="w-full py-2 bg-gray-50 text-gray-600 rounded-md text-xs hover:bg-gray-100 mt-2"
