@@ -249,6 +249,7 @@ const PropertyPanel = () => {
                             />
                         </div>
                         <div className="space-y-4 border-t pt-4 my-4">
+                            {/* Force update for Head block properties */}
                             <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
                             <div className="grid grid-cols-2 gap-4">
                                 <div>
