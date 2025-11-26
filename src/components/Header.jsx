@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { createPortal } from 'react-dom';
 import { useEditor } from '../context/EditorContext';
 import { Share, ArrowLeft, Save, Copy, Download, X, Loader2 } from 'lucide-react';
 import { QRCodeSVG } from 'qrcode.react';
@@ -28,6 +29,52 @@ const Header = () => {
                 console.warn("Failed to fetch existing projects, using new createdAt");
             }
 
+            // Deep copy blocks to avoid mutating state
+            const blocksToSave = JSON.parse(JSON.stringify(state.blocks));
+
+            // Compress images in blocks
+            for (const block of blocksToSave) {
+                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
+                    try {
+                        block.content.src = await compressDataUrl(block.content.src, 320, 0.4);
+                    } catch (e) {
+                        console.warn('Failed to compress image:', e);
+                    }
+                } else if (block.type === 'gallery' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img, 320, 0.4);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress gallery images:', e);
+                    }
+                } else if (block.type === 'slide' && block.content?.images) {
+                    try {
+                        block.content.images = await Promise.all(
+                            block.content.images.map(async (img) => {
+                                if (img.startsWith('data:image')) {
+                                    return await compressDataUrl(img, 320, 0.4);
+                                }
+                                return img;
+                            })
+                        );
+                    } catch (e) {
+                        console.warn('Failed to compress slide images:', e);
+                    }
+                } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
+                    try {
+                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 320, 0.4);
+                    } catch (e) {
+                        console.warn('Failed to compress share image:', e);
+                    }
+                }
+            }
+
             const project = {
                 id: state.projectMeta.id || Date.now().toString(),
                 title: state.projectMeta.title,
@@ -35,10 +82,18 @@ const Header = () => {
                 type: state.projectMeta.type,
                 password: state.projectMeta.password,
                 author: state.projectMeta.author,
-                blocks: state.blocks,
+                blocks: blocksToSave,
                 createdAt: createdAt,
                 updatedAt: new Date().toISOString(),
             };
+
+            // Check payload size
+            const payloadSize = JSON.stringify(project).length;
+            console.log('Save payload size:', (payloadSize / 1024 / 1024).toFixed(2), 'MB');
+
+            if (payloadSize > 1 * 1024 * 1024) { // 1MB limit
+                throw new Error(`프로젝트 용량이 너무 큽니다 (${(payloadSize / 1024 / 1024).toFixed(2)}MB). 1MB를 초과했습니다. 이미지 개수를 줄여주세요.`);
+            }
 
             await storage.saveProject(project);
             alert('프로젝트가 저장되었습니다!');
@@ -52,7 +107,11 @@ const Header = () => {
             }
         } catch (error) {
             console.error('Save failed:', error);
-            alert(error.message || '저장에 실패했습니다.');
+            if (error.message?.includes('timeout') || error.message?.includes('500')) {
+                alert('서버 응답 시간이 초과되었습니다. 프로젝트 용량이 너무 클 수 있습니다. 이미지를 줄여주세요.');
+            } else {
+                alert(error.message || '저장에 실패했습니다.');
+            }
         }
     };
 
@@ -255,12 +314,12 @@ const Header = () => {
                 </button>
             </div>
 
-            {/* Publish Modal */}
-            {showPublishModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto">
+            {/* Publish Modal - Rendered via Portal */}
+            {showPublishModal && createPortal(
+                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4" style={{ zIndex: 99999 }}>
+                    <div className="bg-white rounded-2xl shadow-xl max-w-2xl w-full p-8 max-h-[90vh] overflow-y-auto" style={{ zIndex: 100000, position: 'relative' }}>
                         <div className="flex justify-between items-center mb-6">
-                            <h2 className="text-2xl font-bold text-gray-900">게시 완료</h2>
+                            <h2 className="text-2xl font-bold text-gray-900">게시 완료 (v1.1)</h2>
                             <button
                                 onClick={() => setShowPublishModal(false)}
                                 className="text-gray-400 hover:text-gray-600"
@@ -283,7 +342,7 @@ const Header = () => {
                         </div>
 
                         {/* QR Code */}
-                        <div className="flex flex-col items-center mb-6 p- bg-gray-50 rounded-lg">
+                        <div className="flex flex-col items-center mb-6 p- bg-gray-50 rounded-lg" style={{ zIndex: 100001, position: 'relative', backgroundColor: 'white' }}>
                             <p className="text-sm font-medium text-gray-700 mb-4">QR 코드</p>
                             <div className="bg-white p-4 rounded-lg shadow-sm">
                                 <QRCodeSVG
@@ -324,67 +383,10 @@ const Header = () => {
                             <p className="text-xs text-gray-400 mt-2">이 URL을 카카오톡이나 소셜 미디어에 공유하세요</p>
                         </div>
 
-                        {/* Kakao Share Button */}
-                        <div className="mt-6 pt-6 border-t border-gray-100">
-                            <button
-                                onClick={() => {
-                                    if (!window.Kakao) {
-                                        alert('Kakao SDK가 로드되지 않았습니다.');
-                                        return;
-                                    }
-                                    if (!window.Kakao.isInitialized()) {
-                                        // Replace with your actual Kakao JavaScript Key
-                                        // You can also put this in .env as VITE_KAKAO_JS_KEY
-                                        const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY || 'YOUR_KAKAO_JAVASCRIPT_KEY';
-                                        try {
-                                            window.Kakao.init(KAKAO_KEY);
-                                        } catch (e) {
-                                            console.error('Kakao init failed:', e);
-                                            alert('카카오톡 SDK 초기화에 실패했습니다. 키를 확인해주세요.');
-                                            return;
-                                        }
-                                    }
 
-                                    const shareUrl = publishedUrl;
-                                    const shareTitle = metadata.title;
-                                    const shareDescription = metadata.description;
-                                    const shareImage = metadata.image;
-
-                                    window.Kakao.Share.sendDefault({
-                                        objectType: 'feed',
-                                        content: {
-                                            title: shareTitle,
-                                            description: shareDescription,
-                                            imageUrl: shareImage,
-                                            link: {
-                                                mobileWebUrl: shareUrl,
-                                                webUrl: shareUrl,
-                                            },
-                                        },
-                                        buttons: [
-                                            {
-                                                title: '자세히 보기',
-                                                link: {
-                                                    mobileWebUrl: shareUrl,
-                                                    webUrl: shareUrl,
-                                                },
-                                            },
-                                        ],
-                                    });
-                                }}
-                                className="w-full py-3 bg-[#FEE500] text-[#000000] rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                            >
-                                <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M12 3C5.925 3 1 6.925 1 11.775C1 14.85 3.025 17.55 6.05 19.05L5.025 22.725C4.95 23.025 5.25 23.25 5.55 23.025L9.975 20.1C10.625 20.25 11.3 20.325 12 20.325C18.075 20.325 23 16.4 23 11.55C23 6.7 18.075 3 12 3Z" />
-                                </svg>
-                                카카오톡으로 공유하기
-                            </button>
-                            <p className="text-xs text-gray-400 mt-2 text-center">
-                                * 카카오톡 공유가 동작하지 않으면 .env 파일에 VITE_KAKAO_JS_KEY를 설정해주세요.
-                            </p>
-                        </div>
                     </div>
-                </div>
+                </div>,
+                document.body
             )}
         </header>
     );

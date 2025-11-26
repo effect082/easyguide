@@ -53,6 +53,39 @@ export const supabaseAdapter = {
     deleteProject: async (projectId) => {
         if (!supabase) throw new Error('Supabase not configured');
 
+        // Step 1: Find associated published content IDs
+        const { data: publishedContents, error: fetchError } = await supabase
+            .from('published_contents')
+            .select('id')
+            .eq('project_id', projectId);
+
+        if (fetchError) {
+            console.warn('Failed to fetch published contents for deletion:', fetchError);
+        }
+
+        // Step 2: Delete published contents in batches
+        if (publishedContents && publishedContents.length > 0) {
+            const idsToDelete = publishedContents.map(pc => pc.id);
+            const batchSize = 5; // Delete 5 at a time to be safe
+
+            for (let i = 0; i < idsToDelete.length; i += batchSize) {
+                const batch = idsToDelete.slice(i, i + batchSize);
+                try {
+                    const { error: deleteError } = await supabase
+                        .from('published_contents')
+                        .delete()
+                        .in('id', batch);
+
+                    if (deleteError) {
+                        console.warn('Failed to delete batch:', deleteError);
+                    }
+                } catch (e) {
+                    console.warn('Exception deleting batch:', e);
+                }
+            }
+        }
+
+        // Step 3: Delete the project
         const { error } = await supabase
             .from('projects')
             .delete()

@@ -24,7 +24,7 @@ const HeadBlock = ({ content, styles }) => {
                 fontSize: getFontSize(fontSize),
                 textAlign,
                 color,
-                fontWeight: 'bold',
+                fontWeight: styles?.fontWeight || 'bold',
                 marginBottom: description ? '10px' : '0'
             }}>
                 {title || 'New Block'}

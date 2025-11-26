@@ -16,7 +16,7 @@ const MapBlock = ({ content, styles }) => {
                 <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/World_map_blank_without_borders.svg')] bg-cover bg-center"></div>
 
                 {/* Location Info */}
-                <div className="z-10 text-center p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm max-w-[80%]">
+                <div className="text-center p-4 bg-white/90 backdrop-blur-sm rounded-xl shadow-sm max-w-[80%]">
                     <div className="inline-flex items-center justify-center w-10 h-10 bg-blue-100 text-blue-600 rounded-full mb-2">
                         <MapPin size={20} />
                     </div>

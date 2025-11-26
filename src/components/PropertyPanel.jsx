@@ -281,12 +281,43 @@ const PropertyPanel = () => {
                                 className="w-full h-8 p-0 border rounded cursor-pointer"
                             />
                         </div>
+
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700 mb-1">텍스트 굵기</label>
+                            <select
+                                value={styles.fontWeight || 'bold'}
+                                onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
+                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                            >
+                                <option value="normal">보통</option>
+                                <option value="bold">굵게</option>
+                            </select>
+                        </div>
                     </>
                 )}
 
                 {/* Image Block */}
                 {selectedBlock.type === 'image' && (
                     <>
+                        {values.src && (
+                            <div className="mb-4">
+                                <label className="block text-sm font-medium text-gray-700 mb-2">이미지 미리보기</label>
+                                <div className="relative border rounded-lg overflow-hidden bg-gray-50">
+                                    <img
+                                        src={values.src}
+                                        alt="Preview"
+                                        className="w-full h-48 object-contain"
+                                    />
+                                    <button
+                                        onClick={() => handleChange('src', '')}
+                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-sm transition-colors"
+                                        title="이미지 삭제"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                         <div>
                             <label className="block text-sm font-medium text-gray-700 mb-1">이미지 업로드</label>
                             <input
@@ -1095,7 +1126,7 @@ const PropertyPanel = () => {
                     </div>
                 </div>
             </div>
-        </div>
+        </div >
     );
 };
 
