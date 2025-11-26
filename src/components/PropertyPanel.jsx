@@ -3,7 +3,7 @@ import { useEditor } from '../context/EditorContext';
 import { Trash2, ArrowUp, ArrowDown } from 'lucide-react';
 import { compressImage, formatFileSize } from '../utils/imageCompression';
 
-// PropertyPanel component - handles block properties and styling
+// PropertyPanel component - handles block properties and styling (Updated)
 
 const PropertyPanel = () => {
     const { state, dispatch } = useEditor();
