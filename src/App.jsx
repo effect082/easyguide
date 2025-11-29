@@ -1,4 +1,4 @@
-import React, { useEffect, useState, Suspense } from 'react';
+import React, { useState, Suspense } from 'react';
 import { EditorProvider, useEditor } from './context/EditorContext';
 import { DndContext, DragOverlay, useSensor, useSensors, PointerSensor } from '@dnd-kit/core';
 import { arrayMove } from '@dnd-kit/sortable';
@@ -20,13 +20,13 @@ const LoadingFallback = () => (
 const AppContent = () => {
   const { state, dispatch } = useEditor();
 
-  const [isViewMode, setIsViewMode] = useState(() => {
+  const [isViewMode] = useState(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
     return !!(searchParams.get('view') || searchParams.get('project') || hashParams.get('view') || hashParams.get('project'));
   });
 
-  const [viewUuid, setViewUuid] = useState(() => {
+  const [viewUuid] = useState(() => {
     const searchParams = new URLSearchParams(window.location.search);
     const hashParams = new URLSearchParams(window.location.hash.includes('?') ? window.location.hash.split('?')[1] : '');
 
@@ -38,15 +38,6 @@ const AppContent = () => {
     return viewParam || null;
   });
 
-  // 1. View Mode (Public Access)
-  if (isViewMode) {
-    return (
-      <Suspense fallback={<LoadingFallback />}>
-        <ViewMode uuid={viewUuid} />
-      </Suspense>
-    );
-  }
-
   // 2. Main Application (No Authentication Required)
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -55,6 +46,15 @@ const AppContent = () => {
       },
     })
   );
+
+  // 1. View Mode (Public Access)
+  if (isViewMode) {
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        <ViewMode uuid={viewUuid} />
+      </Suspense>
+    );
+  }
 
   const handleDragEnd = (event) => {
     const { active, over } = event;

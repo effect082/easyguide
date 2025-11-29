@@ -13,7 +13,7 @@ const Header = () => {
     const [isPublishing, setIsPublishing] = useState(false);
     const [publishedUrl, setPublishedUrl] = useState('');
     const [publishedUuid, setPublishedUuid] = useState('');
-    const [metadata, setMetadata] = useState({ type: '', title: '', description: '' });
+    const [, setMetadata] = useState({ type: '', title: '', description: '' });
 
     const handleSave = async () => {
         try {
@@ -25,7 +25,7 @@ const Header = () => {
                 if (existing) {
                     createdAt = existing.createdAt;
                 }
-            } catch (e) {
+            } catch {
                 console.warn("Failed to fetch existing projects, using new createdAt");
             }
 
@@ -328,41 +328,6 @@ const Header = () => {
                             </button>
                         </div>
 
-                        <div className="mb-6">
-                            <p className="text-sm font-medium text-gray-700 mb-2">카카오톡 공유 미리보기</p>
-                            <div className="bg-[#ABC1D1] p-4 rounded-lg max-w-sm mx-auto">
-                                <div className="bg-white rounded-lg overflow-hidden shadow-sm">
-                                    {/* Image Area */}
-                                    <div className="w-full h-48 bg-gray-100 relative">
-                                        {metadata.image ? (
-                                            <img
-                                                src={metadata.image}
-                                                alt="Preview"
-                                                className="w-full h-full object-cover"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-gray-400">
-                                                <span className="text-xs">이미지 없음</span>
-                                            </div>
-                                        )}
-                                    </div>
-
-                                    {/* Text Area */}
-                                    <div className="p-3">
-                                        <h3 className="font-bold text-gray-900 text-sm mb-1 line-clamp-2">
-                                            {metadata.title}
-                                        </h3>
-                                        <p className="text-xs text-gray-500 line-clamp-2 mb-2">
-                                            {metadata.description || '공유된 내용을 확인해 주십시오!!'}
-                                        </p>
-                                        <p className="text-[10px] text-gray-400">
-                                            {window.location.host}
-                                        </p>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
                         {/* QR Code */}
                         <div className="flex flex-col items-center mb-6 p- bg-gray-50 rounded-lg" style={{ zIndex: 100001, position: 'relative', backgroundColor: 'white' }}>
                             <p className="text-sm font-medium text-gray-700 mb-4">QR 코드</p>
@@ -404,110 +369,6 @@ const Header = () => {
                             </div>
                             <p className="text-xs text-gray-400 mt-2">이 URL을 카카오톡이나 소셜 미디어에 공유하세요</p>
                         </div>
-
-                        {/* Kakao Share Button */}
-                        <div className="mb-6">
-                            <button
-                                onClick={async () => {
-                                    if (!window.Kakao) {
-                                        alert('카카오톡 SDK가 로드되지 않았습니다.');
-                                        return;
-                                    }
-
-                                    if (!window.Kakao.isInitialized()) {
-                                        const KAKAO_KEY = import.meta.env.VITE_KAKAO_JS_KEY;
-                                        if (KAKAO_KEY) {
-                                            try {
-                                                window.Kakao.init(KAKAO_KEY);
-                                            } catch (e) {
-                                                console.error('Kakao init failed:', e);
-                                            }
-                                        }
-                                    }
-
-                                    if (!window.Kakao.isInitialized()) {
-                                        alert('카카오톡 SDK 초기화에 실패했습니다. API 키를 확인해주세요.');
-                                        return;
-                                    }
-
-                                    try {
-                                        // Show loading state (optional, but good UX)
-                                        const btn = document.getElementById('kakao-share-btn');
-                                        if (btn) {
-                                            btn.disabled = true;
-                                            btn.innerText = '이미지 업로드 중...';
-                                        }
-
-                                        let imageUrl = metadata.image || '';
-
-                                        // If image is base64, upload to Kakao
-                                        if (imageUrl.startsWith('data:image')) {
-                                            try {
-                                                // Convert base64 to blob
-                                                const byteString = atob(imageUrl.split(',')[1]);
-                                                const mimeString = imageUrl.split(',')[0].split(':')[1].split(';')[0];
-                                                const ab = new ArrayBuffer(byteString.length);
-                                                const ia = new Uint8Array(ab);
-                                                for (let i = 0; i < byteString.length; i++) {
-                                                    ia[i] = byteString.charCodeAt(i);
-                                                }
-                                                const blob = new Blob([ab], { type: mimeString });
-                                                const file = new File([blob], "image.png", { type: mimeString });
-
-                                                // Upload to Kakao
-                                                const response = await window.Kakao.Share.uploadImage({
-                                                    file: file
-                                                });
-
-                                                imageUrl = response.infos.original.url;
-                                            } catch (e) {
-                                                console.error('Kakao image upload failed:', e);
-                                                // Fallback to empty image or keep base64 (which will fail to render but message sends)
-                                                // Better to alert or proceed without image
-                                                imageUrl = '';
-                                            }
-                                        }
-
-                                        window.Kakao.Share.sendDefault({
-                                            objectType: 'feed',
-                                            content: {
-                                                title: metadata.title || '제목 없음',
-                                                description: metadata.description || '공유된 콘텐츠를 확인해보세요.',
-                                                imageUrl: imageUrl,
-                                                link: {
-                                                    mobileWebUrl: publishedUrl,
-                                                    webUrl: publishedUrl,
-                                                },
-                                            },
-                                            buttons: [
-                                                {
-                                                    title: '자세히 보기',
-                                                    link: {
-                                                        mobileWebUrl: publishedUrl,
-                                                        webUrl: publishedUrl,
-                                                    },
-                                                },
-                                            ],
-                                        });
-                                    } catch (error) {
-                                        console.error('Kakao share error:', error);
-                                        alert('카카오톡 공유 중 오류가 발생했습니다.');
-                                    } finally {
-                                        const btn = document.getElementById('kakao-share-btn');
-                                        if (btn) {
-                                            btn.disabled = false;
-                                            btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-share"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" x2="12" y1="2" y2="15"/></svg> 카카오톡으로 공유하기';
-                                        }
-                                    }
-                                }}
-                                id="kakao-share-btn"
-                                className="w-full py-3 bg-[#FEE500] text-[#000000] rounded-lg font-bold hover:opacity-90 transition-opacity flex items-center justify-center gap-2"
-                            >
-                                <Share size={20} />
-                                카카오톡으로 공유하기
-                            </button>
-                        </div>
-
 
                     </div>
                 </div>,

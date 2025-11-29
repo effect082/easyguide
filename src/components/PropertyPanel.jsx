@@ -61,7 +61,7 @@ const PropertyPanel = () => {
         dispatch({ type: 'REORDER_BLOCKS', payload: newBlocks });
     };
 
-    const [isCompressing, setIsCompressing] = useState(false);
+    const [, setIsCompressing] = useState(false);
 
     const handleImageUpload = async (e, key = 'src') => {
         const file = e.target.files[0];

@@ -2,7 +2,7 @@ import React from 'react';
 
 const ImageBlock = ({ content, styles }) => {
     const { src, link } = content;
-    const { backgroundColor = 'transparent', padding = '0px', borderRadius = '0px' } = styles || {};
+    const { backgroundColor = 'transparent', padding = '0 20px', borderRadius = '0px' } = styles || {};
 
     const ImageComponent = (
         <img

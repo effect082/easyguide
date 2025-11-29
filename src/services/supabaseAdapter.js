@@ -40,7 +40,7 @@ export const supabaseAdapter = {
         };
 
         // Check if exists to decide insert or update (upsert)
-        const { data, error } = await supabase
+        const { error } = await supabase
             .from('projects')
             .upsert(dbProject)
             .select()

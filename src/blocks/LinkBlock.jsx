@@ -7,7 +7,7 @@ const LinkBlock = ({ content, styles, mode }) => {
         hoverBackgroundColor = null,
         color = '#000000',
         fontSize = 'medium',
-        textAlign = 'center',
+        // textAlign = 'center',
         fontWeight = 'normal',
         borderRadius = '16px',
         paddingVertical = '12px',
@@ -51,7 +51,7 @@ const LinkBlock = ({ content, styles, mode }) => {
     };
 
     return (
-        <div style={{ padding: '8px 0', marginBottom: '8px' }}>
+        <div style={{ padding: '8px 20px', marginBottom: '8px' }}>
             <a
                 href={url}
                 target="_blank"

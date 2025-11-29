@@ -21,7 +21,7 @@ const initialState = {
 
 const editorReducer = (state, action) => {
     switch (action.type) {
-        case 'ADD_BLOCK':
+        case 'ADD_BLOCK': {
             const newBlock = {
                 id: uuidv4(),
                 type: action.payload.blockType || action.payload.type,
@@ -48,6 +48,7 @@ const editorReducer = (state, action) => {
                 blocks: [...state.blocks, newBlock],
                 selectedBlockId: newBlock.id,
             };
+        }
         case 'REMOVE_BLOCK':
             return {
                 ...state,
@@ -122,6 +123,7 @@ export const EditorProvider = ({ children }) => {
     );
 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useEditor = () => {
     const context = useContext(EditorContext);
     if (!context) {

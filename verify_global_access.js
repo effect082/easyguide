@@ -48,7 +48,7 @@ async function verifyGlobalAccess() {
 
     // 3. Create User B
     const emailB = `testuser${Date.now() + 1}@gmail.com`;
-    const { data: { user: userB }, error: errorB } = await supabase.auth.signUp({
+    const { error: errorB } = await supabase.auth.signUp({
         email: emailB,
         password: password
     });

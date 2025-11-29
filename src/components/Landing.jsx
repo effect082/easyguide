@@ -6,7 +6,7 @@ import { storage } from '../services/storage';
 const Landing = () => {
     const { dispatch } = useEditor();
     const [projects, setProjects] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [, setIsLoading] = useState(true);
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState('전체'); // 전체, 개인, 팀
     const [formData, setFormData] = useState({
