@@ -1,5 +1,5 @@
 
-const GOOGLE_SHEETS_URL = import.meta.env.VITE_GOOGLE_SHEETS_URL;
+const GOOGLE_SHEETS_URL = "https://script.google.com/macros/s/AKfycbyTNRpTup97ipSS2ceSjOC9lkekTXMBBxi_QZpPHheZ4Mn_6yVV7fOtmGTHrRZjJHcM/exec";
 
 const request = async (action, data = {}) => {
     if (!GOOGLE_SHEETS_URL) {
