@@ -6,7 +6,8 @@ import { storage } from '../services/storage';
 const Landing = () => {
     const { dispatch } = useEditor();
     const [projects, setProjects] = useState([]);
-    const [, setIsLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
+    const [isSaving, setIsSaving] = useState(false);
     const [showModal, setShowModal] = useState(false);
     const [activeTab, setActiveTab] = useState('전체'); // 전체, 개인, 팀
     const [formData, setFormData] = useState({
@@ -22,19 +23,36 @@ const Landing = () => {
     }, []);
 
     const loadProjects = async () => {
+        // 1. Load from cache immediately for speed
+        const cached = localStorage.getItem('projects_cache');
+        if (cached) {
+            try {
+                setProjects(JSON.parse(cached));
+                setIsLoading(false);
+            } catch (e) {
+                console.warn('Failed to parse project cache', e);
+            }
+        }
+
         try {
-            setIsLoading(true);
+            // 2. Fetch fresh data from server
+            if (!cached) setIsLoading(true);
             const data = await storage.getProjects();
+
+            // 3. Update state and cache
             setProjects(data);
+            localStorage.setItem('projects_cache', JSON.stringify(data));
         } catch (error) {
             console.error('Failed to load projects:', error);
-            alert('프로젝트를 불러오는데 실패했습니다.');
+            if (!cached) alert('프로젝트를 불러오는데 실패했습니다.');
         } finally {
             setIsLoading(false);
         }
     };
 
     const handleCreateProject = async () => {
+        if (isSaving) return;
+
         if (!formData.title || !formData.password || !formData.author) {
             alert('모든 필드를 입력해주세요.');
             return;
@@ -44,6 +62,8 @@ const Landing = () => {
             alert('비밀번호는 4자리 숫자여야 합니다.');
             return;
         }
+
+        setIsSaving(true);
 
         const newProject = {
             id: Date.now().toString(),
@@ -59,7 +79,10 @@ const Landing = () => {
 
         try {
             await storage.saveProject(newProject);
-            setProjects([...projects, newProject]);
+
+            const updatedProjects = [newProject, ...projects]; // Add to top
+            setProjects(updatedProjects);
+            localStorage.setItem('projects_cache', JSON.stringify(updatedProjects));
 
             // Load project into editor
             dispatch({ type: 'LOAD_PROJECT', payload: newProject });
@@ -76,6 +99,8 @@ const Landing = () => {
         } catch (error) {
             console.error('Failed to create project:', error);
             alert('프로젝트 생성에 실패했습니다.');
+        } finally {
+            setIsSaving(false);
         }
     };
 
