@@ -1,9 +1,11 @@
-// import { localStorageAdapter } from './localStorageAdapter.js';
+import { localStorageAdapter } from './localStorageAdapter.js';
 import { supabaseAdapter } from './supabaseAdapter.js';
-
-// Use Supabase for data persistence across domains
-// Use Supabase for data persistence across domains
-export const storage = supabaseAdapter;
-// export const storage = localStorageAdapter;
+import { airtableAdapter } from './airtableAdapter.js';
 
 export const isSupabaseEnabled = false;
+export const isAirtableEnabled = true;
+
+// Storage priority: Airtable > Supabase > LocalStorage
+export const storage = isAirtableEnabled
+    ? airtableAdapter
+    : (isSupabaseEnabled ? supabaseAdapter : localStorageAdapter);
