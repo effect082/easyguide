@@ -46,6 +46,7 @@ export const googleSheetsAdapter = {
         // Let's stringify here to be safe and consistent with other adapters.
         const payload = {
             ...project,
+            password: `'${project.password}`, // Prepend ' to force Google Sheets to treat as string (preserves '0')
             blocks: JSON.stringify(project.blocks)
         };
         const savedProject = await request('saveProject', { project: payload });
