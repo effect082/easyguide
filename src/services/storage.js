@@ -1,11 +1,16 @@
 import { localStorageAdapter } from './localStorageAdapter.js';
 import { supabaseAdapter } from './supabaseAdapter.js';
 import { airtableAdapter } from './airtableAdapter.js';
+import { googleSheetsAdapter } from './googleSheetsAdapter.js';
 
 export const isSupabaseEnabled = false;
-export const isAirtableEnabled = true;
+export const isAirtableEnabled = false;
+export const isGoogleSheetsEnabled = true;
 
-// Storage priority: Airtable > Supabase > LocalStorage
-export const storage = isAirtableEnabled
-    ? airtableAdapter
-    : (isSupabaseEnabled ? supabaseAdapter : localStorageAdapter);
+// Storage priority: Google Sheets > Airtable > Supabase > LocalStorage
+export const storage = isGoogleSheetsEnabled
+    ? googleSheetsAdapter
+    : (isAirtableEnabled
+        ? airtableAdapter
+        : (isSupabaseEnabled ? supabaseAdapter : localStorageAdapter));
+
