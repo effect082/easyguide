@@ -107,3 +107,53 @@ export const compressDataUrl = async (dataUrl, maxWidth = 320, quality = 0.4) =>
         img.src = dataUrl;
     });
 };
+
+/**
+ * Compress all images in a list of blocks
+ */
+export const compressProjectBlocks = async (blocks) => {
+    const compressedBlocks = JSON.parse(JSON.stringify(blocks)); // Deep copy
+
+    for (const block of compressedBlocks) {
+        if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
+            try {
+                block.content.src = await compressDataUrl(block.content.src, 320, 0.4);
+            } catch (e) {
+                console.warn('Failed to compress image:', e);
+            }
+        } else if (block.type === 'gallery' && block.content?.images) {
+            try {
+                block.content.images = await Promise.all(
+                    block.content.images.map(async (img) => {
+                        if (img.startsWith('data:image')) {
+                            return await compressDataUrl(img, 320, 0.4);
+                        }
+                        return img;
+                    })
+                );
+            } catch (e) {
+                console.warn('Failed to compress gallery images:', e);
+            }
+        } else if (block.type === 'slide' && block.content?.images) {
+            try {
+                block.content.images = await Promise.all(
+                    block.content.images.map(async (img) => {
+                        if (img.startsWith('data:image')) {
+                            return await compressDataUrl(img, 320, 0.4);
+                        }
+                        return img;
+                    })
+                );
+            } catch (e) {
+                console.warn('Failed to compress slide images:', e);
+            }
+        } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
+            try {
+                block.content.shareImage = await compressDataUrl(block.content.shareImage, 320, 0.4);
+            } catch (e) {
+                console.warn('Failed to compress share image:', e);
+            }
+        }
+    }
+    return compressedBlocks;
+};

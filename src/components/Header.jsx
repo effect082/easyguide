@@ -5,7 +5,7 @@ import { Share, ArrowLeft, Save, Copy, Download, X, Loader2 } from 'lucide-react
 import { QRCodeSVG } from 'qrcode.react';
 import { v4 as uuidv4 } from 'uuid';
 import { storage } from '../services/storage';
-import { compressDataUrl } from '../utils/imageCompression';
+import { compressDataUrl, compressProjectBlocks } from '../utils/imageCompression';
 
 const Header = () => {
     const { state, dispatch } = useEditor();
@@ -29,51 +29,10 @@ const Header = () => {
                 console.warn("Failed to fetch existing projects, using new createdAt");
             }
 
-            // Deep copy blocks to avoid mutating state
-            const blocksToSave = JSON.parse(JSON.stringify(state.blocks));
 
-            // Compress images in blocks
-            for (const block of blocksToSave) {
-                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
-                    try {
-                        block.content.src = await compressDataUrl(block.content.src, 320, 0.4);
-                    } catch (e) {
-                        console.warn('Failed to compress image:', e);
-                    }
-                } else if (block.type === 'gallery' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 320, 0.4);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress gallery images:', e);
-                    }
-                } else if (block.type === 'slide' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 320, 0.4);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress slide images:', e);
-                    }
-                } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
-                    try {
-                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 320, 0.4);
-                    } catch (e) {
-                        console.warn('Failed to compress share image:', e);
-                    }
-                }
-            }
+            // Deep copy and compress blocks
+            const blocksToSave = await compressProjectBlocks(state.blocks);
+
 
             const project = {
                 id: state.projectMeta.id || Date.now().toString(),
@@ -124,51 +83,9 @@ const Header = () => {
             // Generate UUID for this publication
             const uuid = uuidv4();
 
-            // Deep copy blocks to avoid mutating state
-            const blocksToPublish = JSON.parse(JSON.stringify(state.blocks));
+            // Deep copy and compress blocks
+            const blocksToPublish = await compressProjectBlocks(state.blocks);
 
-            // Compress images in blocks
-            for (const block of blocksToPublish) {
-                if (block.type === 'image' && block.content?.src?.startsWith('data:image')) {
-                    try {
-                        block.content.src = await compressDataUrl(block.content.src, 320, 0.4);
-                    } catch (e) {
-                        console.warn('Failed to compress image:', e);
-                    }
-                } else if (block.type === 'gallery' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 320, 0.4);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress gallery images:', e);
-                    }
-                } else if (block.type === 'slide' && block.content?.images) {
-                    try {
-                        block.content.images = await Promise.all(
-                            block.content.images.map(async (img) => {
-                                if (img.startsWith('data:image')) {
-                                    return await compressDataUrl(img, 320, 0.4);
-                                }
-                                return img;
-                            })
-                        );
-                    } catch (e) {
-                        console.warn('Failed to compress slide images:', e);
-                    }
-                } else if (block.type === 'share' && block.content?.shareImage?.startsWith('data:image')) {
-                    try {
-                        block.content.shareImage = await compressDataUrl(block.content.shareImage, 320, 0.4);
-                    } catch (e) {
-                        console.warn('Failed to compress share image:', e);
-                    }
-                }
-            }
 
             // Extract metadata from COMPRESSED blocks
             // Find first image from blocks for og:image

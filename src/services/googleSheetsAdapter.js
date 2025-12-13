@@ -41,19 +41,34 @@ export const googleSheetsAdapter = {
     },
 
     saveProject: async (project) => {
-        // Ensure blocks are stringified before sending if the script expects strings
-        // But usually easier to send object and let script stringify, or stringify here.
-        // Let's stringify here to be safe and consistent with other adapters.
-        const payload = {
-            ...project,
-            password: `'${project.password}`, // Prepend ' to force Google Sheets to treat as string (preserves '0')
-            blocks: JSON.stringify(project.blocks)
-        };
-        const savedProject = await request('saveProject', { project: payload });
-        return {
-            ...savedProject,
-            blocks: JSON.parse(savedProject.blocks)
-        };
+        // Fix for duplication: Check if project exists, delete it, then save new version
+        try {
+            // 1. Get all projects to check for existence
+            const existingProjects = await googleSheetsAdapter.getProjects();
+            const exists = existingProjects.some(p => p.id === project.id);
+
+            // 2. If exists, delete it first
+            if (exists) {
+                console.log(`Project ${project.id} exists. Deleting check...`);
+                await googleSheetsAdapter.deleteProject(project.id);
+            }
+
+            // 3. Save the new version
+            const payload = {
+                ...project,
+                password: `'${project.password}`, // Prepend ' to force Google Sheets to treat as string
+                blocks: JSON.stringify(project.blocks)
+            };
+
+            const savedProject = await request('saveProject', { project: payload });
+            return {
+                ...savedProject,
+                blocks: JSON.parse(savedProject.blocks)
+            };
+        } catch (error) {
+            console.error('Failed to save project (Delete-then-Save sequence):', error);
+            throw error;
+        }
     },
 
     deleteProject: async (projectId) => {
