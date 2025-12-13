@@ -138,10 +138,26 @@ const PropertyPanel = () => {
         );
     }
 
+    const BLOCK_NAMES = {
+        head: '헤드(제목)',
+        text: '텍스트',
+        image: '이미지',
+        video: '영상',
+        slide: '슬라이드',
+        form: '입력 폼',
+        social: '소셜 링크',
+        gallery: '갤러리',
+        business: '사업안내',
+        schedule: '일정',
+        map: '지도',
+        share: '공유 정보',
+        link: '링크 버튼'
+    };
+
     return (
         <div className="p-4 h-full overflow-y-auto">
             <div className="flex justify-between items-center mb-6 border-b pb-2">
-                <h2 className="text-lg font-semibold">{selectedBlock.type} 속성</h2>
+                <h2 className="text-lg font-semibold">{BLOCK_NAMES[selectedBlock.type] || selectedBlock.type} 속성</h2>
                 <div className="flex gap-2">
                     <button onClick={handleDelete} className="text-red-500 hover:bg-red-50 p-1 rounded">
                         <Trash2 size={16} />

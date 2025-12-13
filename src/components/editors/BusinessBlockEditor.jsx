@@ -1,283 +1,189 @@
-import React, { useEffect, useState } from 'react';
-import { useEditor } from '../context/EditorContext';
+import React from 'react';
 import { Trash2 } from 'lucide-react';
-import { compressImage, formatFileSize } from '../utils/imageCompression';
 
-// Import Editor Components
-import TextBlockEditor from './editors/TextBlockEditor';
-import HeadBlockEditor from './editors/HeadBlockEditor';
-import ImageBlockEditor from './editors/ImageBlockEditor';
-import SlideBlockEditor from './editors/SlideBlockEditor';
-import FormBlockEditor from './editors/FormBlockEditor';
-import SocialBlockEditor from './editors/SocialBlockEditor';
-import GalleryBlockEditor from './editors/GalleryBlockEditor';
-import BusinessBlockEditor from './editors/BusinessBlockEditor';
+const BusinessBlockEditor = ({ values, styles, handleChange, handleStyleChange }) => {
+    return (
+        <div className="space-y-6">
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">사업명</label>
+                <input
+                    type="text"
+                    value={values.name || ''}
+                    onChange={(e) => handleChange('name', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm mb-2"
+                    placeholder="예: 노인복지 프로그램"
+                />
 
-// PropertyPanel component - handles block properties and styling (Refactored)
-
-const PropertyPanel = () => {
-    const { state, dispatch } = useEditor();
-    const selectedBlock = state.blocks.find(b => b.id === state.selectedBlockId);
-    const [values, setValues] = useState({});
-    const [styles, setStyles] = useState({});
-
-    useEffect(() => {
-        if (selectedBlock) {
-            setValues(selectedBlock.content || {});
-            setStyles(selectedBlock.styles || {});
-        }
-    }, [selectedBlock]);
-
-    const handleChange = (key, value) => {
-        const newValues = { ...values, [key]: value };
-        setValues(newValues);
-        dispatch({
-            type: 'UPDATE_BLOCK',
-            payload: {
-                id: selectedBlock.id,
-                updates: { content: newValues }
-            }
-        });
-    };
-
-    const handleStyleChange = (key, value) => {
-        const newStyles = { ...styles, [key]: value };
-        setStyles(newStyles);
-        dispatch({
-            type: 'UPDATE_BLOCK',
-            payload: {
-                id: selectedBlock.id,
-                updates: { styles: newStyles }
-            }
-        });
-    };
-
-    const handleDelete = () => {
-        if (window.confirm('정말 삭제하시겠습니까?')) {
-            dispatch({ type: 'REMOVE_BLOCK', payload: selectedBlock.id });
-        }
-    };
-
-    const [, setIsCompressing] = useState(false);
-
-    const handleImageUpload = async (e, key = 'src') => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        // Check if it's an image
-        if (!file.type.startsWith('image/')) {
-            alert('이미지 파일만 업로드 가능합니다.');
-            return;
-        }
-
-        setIsCompressing(true);
-
-        try {
-            const result = await compressImage(file);
-
-            // Log compression results
-            console.log(`✅ Image compressed:`, {
-                original: formatFileSize(result.originalSize),
-                compressed: formatFileSize(result.compressedSize),
-                reduction: `${result.reduction}%`,
-                dimensions: `${result.width}x${result.height}`
-            });
-
-            // Update block with compressed image
-            handleChange(key, result.dataUrl);
-
-        } catch (error) {
-            console.error('Image compression failed:', error);
-            alert('이미지 압축 실패. 다시 시도해주세요.');
-        } finally {
-            setIsCompressing(false);
-        }
-    };
-
-    if (!selectedBlock) {
-        return (
-            <div className="p-4 h-full overflow-y-auto">
-                <h2 className="text-lg font-semibold mb-6 border-b pb-2">프로젝트 설정</h2>
-
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">전체 배경 색상</label>
-                        <div className="flex items-center gap-2">
-                            <input
-                                type="color"
-                                value={state.projectMeta.backgroundColor || '#ffffff'}
-                                onChange={(e) => dispatch({
-                                    type: 'SET_PROJECT_META',
-                                    payload: { backgroundColor: e.target.value }
-                                })}
-                                className="w-8 h-8 p-0 border rounded cursor-pointer"
-                            />
-                            <span className="text-xs text-gray-400">
-                                {state.projectMeta.backgroundColor || '#ffffff'}
-                            </span>
+                {/* Business Name Styles */}
+                <div className="bg-gray-50 p-3 rounded-md mb-4 border border-gray-200">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">사업명 스타일</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">정렬</label>
+                            <select
+                                value={styles.nameHeading?.textAlign || 'left'}
+                                onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, textAlign: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="left">왼쪽</option>
+                                <option value="center">중앙</option>
+                                <option value="right">오른쪽</option>
+                            </select>
                         </div>
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700 mb-1">프로젝트 제목</label>
-                        <input
-                            type="text"
-                            value={state.projectMeta.title || ''}
-                            onChange={(e) => dispatch({
-                                type: 'SET_PROJECT_META',
-                                payload: { title: e.target.value }
-                            })}
-                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                        />
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">크기</label>
+                            <select
+                                value={styles.nameHeading?.fontSize || 'large'}
+                                onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, fontSize: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="medium">보통</option>
+                                <option value="large">크게</option>
+                                <option value="xlarge">더 크게</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">굵기</label>
+                            <select
+                                value={styles.nameHeading?.fontWeight || 'bold'}
+                                onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, fontWeight: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="normal">보통</option>
+                                <option value="bold">굵게</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">색상</label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    value={styles.nameHeading?.color || '#000000'}
+                                    onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, color: e.target.value })}
+                                    className="w-6 h-6 p-0 border rounded cursor-pointer"
+                                />
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
-        );
-    }
 
-    return (
-        <div className="p-4 h-full overflow-y-auto">
-            <div className="flex justify-between items-center mb-6 border-b pb-2">
-                <h2 className="text-lg font-semibold">{selectedBlock.type} 속성</h2>
-                <div className="flex gap-2">
-                    <button onClick={handleDelete} className="text-red-500 hover:bg-red-50 p-1 rounded">
-                        <Trash2 size={16} />
+            <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">사업 설명</label>
+                <textarea
+                    value={values.description || ''}
+                    onChange={(e) => handleChange('description', e.target.value)}
+                    className="w-full p-2 border border-gray-300 rounded-md text-sm h-20 mb-2"
+                    placeholder="사업에 대한 상세 설명을 입력하세요."
+                />
+
+                {/* Description Styles */}
+                <div className="bg-gray-50 p-3 rounded-md mb-4 border border-gray-200">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase mb-2">설명 스타일</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">정렬</label>
+                            <select
+                                value={styles.descriptionText?.textAlign || 'left'}
+                                onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, textAlign: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="left">왼쪽</option>
+                                <option value="center">중앙</option>
+                                <option value="right">오른쪽</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">크기</label>
+                            <select
+                                value={styles.descriptionText?.fontSize || 'medium'}
+                                onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, fontSize: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="small">작게</option>
+                                <option value="medium">보통</option>
+                                <option value="large">크게</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">굵기</label>
+                            <select
+                                value={styles.descriptionText?.fontWeight || 'normal'}
+                                onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, fontWeight: e.target.value })}
+                                className="w-full p-1 border border-gray-300 rounded text-xs"
+                            >
+                                <option value="normal">보통</option>
+                                <option value="bold">굵게</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label className="block text-xs text-gray-400 mb-1">색상</label>
+                            <div className="flex items-center gap-2">
+                                <input
+                                    type="color"
+                                    value={styles.descriptionText?.color || '#000000'}
+                                    onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, color: e.target.value })}
+                                    className="w-6 h-6 p-0 border rounded cursor-pointer"
+                                />
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Business Items */}
+            <div>
+                <div className="flex justify-between items-center mb-2">
+                    <label className="block text-sm font-medium text-gray-700">상세 항목 (이용 대상, 이용료 등)</label>
+                    <button
+                        onClick={() => handleChange('items', [...(values.items || []), { label: '', value: '' }])}
+                        className="px-2 py-1 bg-green-50 text-green-600 rounded text-xs hover:bg-green-100"
+                    >
+                        + 추가
                     </button>
                 </div>
-            </div>
-
-            <div className="space-y-6">
-                {/* Common Styles */}
-                <div>
-                    <label className="block text-xs font-medium text-gray-500 mb-1">블록 배경 색상</label>
-                    <div className="flex items-center gap-2">
-                        <input
-                            type="color"
-                            value={styles.backgroundColor || '#ffffff'}
-                            onChange={(e) => handleStyleChange('backgroundColor', e.target.value)}
-                            className="w-8 h-8 p-0 border rounded cursor-pointer"
-                        />
-                        <span className="text-xs text-gray-400">{styles.backgroundColor === 'transparent' ? '투명' : styles.backgroundColor}</span>
-                    </div>
-                </div>
-
-                {/* Render specific editor based on block type */}
-                {selectedBlock.type === 'text' && (
-                    <TextBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
+                {(values.items || []).length === 0 && (
+                    <p className="text-xs text-gray-400 text-center py-2 bg-gray-50 rounded">상세 항목이 없습니다. "+ 추가" 버튼을 클릭하여 항목을 추가하세요.</p>
                 )}
-
-                {selectedBlock.type === 'head' && (
-                    <HeadBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
-
-                {selectedBlock.type === 'image' && (
-                    <ImageBlockEditor
-                        values={values}
-                        handleChange={handleChange}
-                        handleImageUpload={handleImageUpload}
-                    />
-                )}
-
-                {selectedBlock.type === 'video' && (
-                    <>
-                        {values.src && (
-                            <div className="mb-4">
-                                <label className="block text-sm font-medium text-gray-700 mb-2">영상 미리보기</label>
-                                <div className="relative border rounded-lg overflow-hidden bg-black">
-                                    <video
-                                        src={values.src}
-                                        controls
-                                        className="w-full h-48 object-contain"
-                                    />
-                                    <button
-                                        onClick={() => handleChange('src', '')}
-                                        className="absolute top-2 right-2 bg-red-500 text-white p-2 rounded-full hover:bg-red-600 shadow-sm transition-colors z-10"
-                                        title="영상 삭제"
-                                    >
-                                        <Trash2 size={16} />
-                                    </button>
-                                </div>
-                            </div>
-                        )}
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">영상 업로드</label>
-                            <input
-                                type="file"
-                                accept="video/*"
-                                onChange={(e) => handleImageUpload(e, 'src')}
-                                className="w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
-                            />
-                        </div>
-                        <div>
-                            <label className="block text-sm font-medium text-gray-700 mb-1">또는 영상 URL 입력</label>
+                {(values.items || []).map((item, idx) => (
+                    <div key={idx} className="mb-2 p-2 border border-gray-100 rounded bg-gray-50">
+                        <div className="flex gap-2 mb-1">
                             <input
                                 type="text"
-                                value={values.src || ''}
-                                onChange={(e) => handleChange('src', e.target.value)}
-                                className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                placeholder="https://..."
+                                placeholder="항목명 (예: 이용대상)"
+                                value={item.label}
+                                onChange={(e) => {
+                                    const newItems = [...(values.items || [])];
+                                    newItems[idx] = { ...item, label: e.target.value };
+                                    handleChange('items', newItems);
+                                }}
+                                className="w-1/3 p-1 border border-gray-300 rounded text-xs font-bold"
                             />
+                            <button
+                                onClick={() => {
+                                    const newItems = values.items.filter((_, i) => i !== idx);
+                                    handleChange('items', newItems);
+                                }}
+                                className="ml-auto text-red-500 hover:bg-red-50 p-1 rounded"
+                            >
+                                <Trash2 size={14} />
+                            </button>
                         </div>
-                    </>
-                )}
-
-                {selectedBlock.type === 'slide' && (
-                    <SlideBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
-
-                {selectedBlock.type === 'form' && (
-                    <FormBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
-
-                {selectedBlock.type === 'social' && (
-                    <SocialBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
-
-                {selectedBlock.type === 'gallery' && (
-                    <GalleryBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
-
-                {selectedBlock.type === 'business' && (
-                    <BusinessBlockEditor
-                        values={values}
-                        styles={styles}
-                        handleChange={handleChange}
-                        handleStyleChange={handleStyleChange}
-                    />
-                )}
+                        <textarea
+                            placeholder="내용을 입력하세요"
+                            value={item.value}
+                            onChange={(e) => {
+                                const newItems = [...(values.items || [])];
+                                newItems[idx] = { ...item, value: e.target.value };
+                                handleChange('items', newItems);
+                            }}
+                            className="w-full p-1 border border-gray-300 rounded text-xs h-16"
+                        />
+                    </div>
+                ))}
             </div>
         </div>
     );
 };
 
-export default PropertyPanel;
+export default BusinessBlockEditor;
