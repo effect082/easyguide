@@ -44,13 +44,15 @@ export const googleSheetsAdapter = {
         // Fix for duplication: Check if project exists, delete it, then save new version
         try {
             // 1. Get all projects to check for existence
+            // 1. Get all projects to check for existence
             const existingProjects = await googleSheetsAdapter.getProjects();
-            const exists = existingProjects.some(p => String(p.id) === String(project.id));
+            // Use loose comparison (String conversion) to find the match
+            const existingProject = existingProjects.find(p => String(p.id) === String(project.id));
 
-            // 2. If exists, delete it first
-            if (exists) {
-                console.log(`Project ${project.id} exists. Deleting check...`);
-                await googleSheetsAdapter.deleteProject(project.id);
+            // 2. If exists, delete it first using the EXACT ID from the server record
+            if (existingProject) {
+                console.log(`Project ${project.id} exists. Deleting ID: ${existingProject.id} (type: ${typeof existingProject.id})...`);
+                await googleSheetsAdapter.deleteProject(existingProject.id);
             }
 
             // 3. Save the new version
