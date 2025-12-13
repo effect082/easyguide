@@ -44,7 +44,7 @@ const SortableBlock = ({ block }) => {
                 }`}
         >
             {/* Block Content Renderer */}
-            <div className="bg-white rounded-lg shadow-sm overflow-hidden">
+            <div className="rounded-lg">
                 <BlockRenderer block={block} mode="edit" />
             </div>
 
