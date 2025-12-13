@@ -27,9 +27,8 @@ const ViewMode = ({ uuid }) => {
                         setBlocks(content.blocks || []);
                         setMetadata(content.metadata);
 
-                        // Update document title and meta tags
                         if (content.metadata) {
-                            const shareTitle = content.metadata.title || '모바일 콘텐츠';
+                            const shareTitle = content.metadata.title || '강동어울림복지관에서 안내합니다';
                             const shareDescription = content.metadata.description || content.metadata.title;
                             const currentUrl = window.location.href.split('#')[0]; // Remove hash for clean URL
 
