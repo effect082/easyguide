@@ -37,7 +37,7 @@ const ScheduleBlock = ({ content, styles }) => {
     };
 
     return (
-        <div style={{ backgroundColor, padding: '24px', textAlign, color }}>
+        <div className="p-6 w-full" style={{ backgroundColor, textAlign, color }}>
             {title && (
                 <h3
                     className="font-bold mb-4 pb-2 border-b border-gray-200"
