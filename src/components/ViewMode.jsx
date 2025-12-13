@@ -29,7 +29,7 @@ const ViewMode = ({ uuid }) => {
 
                         // Update document title and meta tags
                         if (content.metadata) {
-                            const shareTitle = `${content.metadata.type} "${content.metadata.title}"`;
+                            const shareTitle = content.metadata.title || '모바일 콘텐츠';
                             const shareDescription = content.metadata.description || content.metadata.title;
                             const currentUrl = window.location.href.split('#')[0]; // Remove hash for clean URL
 
