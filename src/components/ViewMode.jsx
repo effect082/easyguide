@@ -35,70 +35,54 @@ const ViewMode = ({ uuid }) => {
 
                             document.title = shareTitle;
 
-                            const updateMetaTag = (property, content) => {
-                                let metaTag = document.querySelector(`meta[property="${property}"]`);
-                                if (!metaTag) {
-                                    metaTag = document.createElement('meta');
-                                    metaTag.setAttribute('property', property);
-                                    document.head.appendChild(metaTag);
+                            // Helper to force update meta tags
+                            const setMetaTag = (selector, content) => {
+                                let element = document.querySelector(selector);
+                                if (!element) {
+                                    element = document.createElement('meta');
+                                    // Parse selector to set attributes (simple mapping for commonly used tags)
+                                    if (selector.includes('[property="')) {
+                                        const property = selector.match(/property="([^"]+)"/)[1];
+                                        element.setAttribute('property', property);
+                                    } else if (selector.includes('[name="')) {
+                                        const name = selector.match(/name="([^"]+)"/)[1];
+                                        element.setAttribute('name', name);
+                                    }
+                                    document.head.appendChild(element);
                                 }
-                                metaTag.setAttribute('content', content);
+                                element.setAttribute('content', content);
                             };
 
-                            const updateNameMetaTag = (name, content) => {
-                                let metaTag = document.querySelector(`meta[name="${name}"]`);
-                                if (!metaTag) {
-                                    metaTag = document.createElement('meta');
-                                    metaTag.setAttribute('name', name);
-                                    document.head.appendChild(metaTag);
-                                }
-                                metaTag.setAttribute('content', content);
-                            };
+                            // Update Title
+                            document.title = shareTitle;
 
-                            // Convert relative image URLs to absolute URLs
-                            const getAbsoluteImageUrl = (imageUrl) => {
-                                if (!imageUrl) return '';
-                                if (imageUrl.startsWith('http://') || imageUrl.startsWith('https://')) {
-                                    return imageUrl;
-                                }
-                                // For relative URLs, convert to absolute
-                                const baseUrl = window.location.origin;
-                                return imageUrl.startsWith('/') ? `${baseUrl}${imageUrl}` : `${baseUrl}/${imageUrl}`;
-                            };
+                            // Standard Meta
+                            setMetaTag('meta[name="description"]', shareDescription);
 
-                            const absoluteImageUrl = getAbsoluteImageUrl(content.metadata.image);
-
-                            // Open Graph (Facebook, KakaoTalk)
-                            updateMetaTag('og:title', shareTitle);
-                            updateMetaTag('og:description', shareDescription);
-                            updateMetaTag('og:type', 'article');
-                            updateMetaTag('og:url', currentUrl);
-                            updateMetaTag('og:site_name', '강동어울림복지관');
-
+                            // Open Graph
+                            setMetaTag('meta[property="og:title"]', shareTitle);
+                            setMetaTag('meta[property="og:description"]', shareDescription);
+                            setMetaTag('meta[property="og:url"]', currentUrl);
                             if (absoluteImageUrl) {
-                                updateMetaTag('og:image', absoluteImageUrl);
-                                updateMetaTag('og:image:width', '1200');
-                                updateMetaTag('og:image:height', '630');
-                                updateMetaTag('og:image:alt', shareTitle);
+                                setMetaTag('meta[property="og:image"]', absoluteImageUrl);
+                                setMetaTag('meta[property="og:image:width"]', '1200');
+                                setMetaTag('meta[property="og:image:height"]', '630');
                             }
 
-                            // KakaoTalk specific
-                            updateMetaTag('kakao:title', shareTitle);
-                            updateMetaTag('kakao:description', shareDescription);
+                            // Kakao specific
+                            setMetaTag('meta[property="kakao:title"]', shareTitle);
+                            setMetaTag('meta[property="kakao:description"]', shareDescription);
                             if (absoluteImageUrl) {
-                                updateMetaTag('kakao:image', absoluteImageUrl);
+                                setMetaTag('meta[property="kakao:image"]', absoluteImageUrl);
                             }
 
-                            // Twitter Card
-                            updateNameMetaTag('twitter:card', 'summary_large_image');
-                            updateNameMetaTag('twitter:title', shareTitle);
-                            updateNameMetaTag('twitter:description', shareDescription);
+                            // Twitter
+                            setMetaTag('meta[name="twitter:card"]', 'summary_large_image');
+                            setMetaTag('meta[name="twitter:title"]', shareTitle);
+                            setMetaTag('meta[name="twitter:description"]', shareDescription);
                             if (absoluteImageUrl) {
-                                updateNameMetaTag('twitter:image', absoluteImageUrl);
+                                setMetaTag('meta[name="twitter:image"]', absoluteImageUrl);
                             }
-
-                            // Standard meta
-                            updateNameMetaTag('description', shareDescription);
                         }
                     } else {
                         setError('콘텐츠를 찾을 수 없습니다. URL이 유효하지 않거나 만료되었을 수 있습니다.');
