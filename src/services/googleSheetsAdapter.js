@@ -45,7 +45,7 @@ export const googleSheetsAdapter = {
         try {
             // 1. Get all projects to check for existence
             const existingProjects = await googleSheetsAdapter.getProjects();
-            const exists = existingProjects.some(p => p.id === project.id);
+            const exists = existingProjects.some(p => String(p.id) === String(project.id));
 
             // 2. If exists, delete it first
             if (exists) {

@@ -750,53 +750,110 @@ const PropertyPanel = () => {
                             />
                         </div>
 
-                        <div className="space-y-4 border-t pt-4 my-4">
-                            <h4 className="text-xs font-bold text-gray-500 uppercase">텍스트 스타일</h4>
-                            <div className="grid grid-cols-2 gap-4">
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
-                                    <select
-                                        value={styles.textAlign || 'left'}
-                                        onChange={(e) => handleStyleChange('textAlign', e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                    >
-                                        <option value="left">왼쪽</option>
-                                        <option value="center">중앙</option>
-                                        <option value="right">오른쪽</option>
-                                    </select>
+                        <div className="space-y-6 border-t pt-4 my-4">
+                            {/* Project Name Style */}
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">사업명 스타일</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                        <select
+                                            value={styles.nameHeading?.textAlign || styles.textAlign || 'left'}
+                                            onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, textAlign: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="left">왼쪽</option>
+                                            <option value="center">중앙</option>
+                                            <option value="right">오른쪽</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                        <select
+                                            value={styles.nameHeading?.fontSize || 'large'}
+                                            onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, fontSize: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="small">작게</option>
+                                            <option value="medium">보통</option>
+                                            <option value="large">크게</option>
+                                            <option value="xlarge">더 크게</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                        <select
+                                            value={styles.nameHeading?.fontWeight || 'bold'}
+                                            onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, fontWeight: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="normal">보통</option>
+                                            <option value="bold">굵게</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="color"
+                                                value={styles.nameHeading?.color || styles.color || '#000000'}
+                                                onChange={(e) => handleStyleChange('nameHeading', { ...styles.nameHeading, color: e.target.value })}
+                                                className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                            />
+                                        </div>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
-                                    <select
-                                        value={styles.fontSize || 'medium'}
-                                        onChange={(e) => handleStyleChange('fontSize', e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                    >
-                                        <option value="small">작게</option>
-                                        <option value="medium">보통</option>
-                                        <option value="large">크게</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
-                                    <select
-                                        value={styles.fontWeight || 'normal'}
-                                        onChange={(e) => handleStyleChange('fontWeight', e.target.value)}
-                                        className="w-full p-2 border border-gray-300 rounded-md text-sm"
-                                    >
-                                        <option value="normal">보통</option>
-                                        <option value="bold">굵게</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
-                                    <div className="flex items-center gap-2">
-                                        <input
-                                            type="color"
-                                            value={styles.color || '#000000'}
-                                            onChange={(e) => handleStyleChange('color', e.target.value)}
-                                            className="w-8 h-8 p-0 border rounded cursor-pointer"
-                                        />
+                            </div>
+
+                            {/* Description Style */}
+                            <div>
+                                <h4 className="text-xs font-bold text-gray-500 uppercase mb-3">사업 설명 스타일</h4>
+                                <div className="grid grid-cols-2 gap-4">
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">정렬</label>
+                                        <select
+                                            value={styles.descriptionText?.textAlign || styles.textAlign || 'left'}
+                                            onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, textAlign: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="left">왼쪽</option>
+                                            <option value="center">중앙</option>
+                                            <option value="right">오른쪽</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">크기</label>
+                                        <select
+                                            value={styles.descriptionText?.fontSize || 'medium'}
+                                            onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, fontSize: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="small">작게</option>
+                                            <option value="medium">보통</option>
+                                            <option value="large">크게</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">굵기</label>
+                                        <select
+                                            value={styles.descriptionText?.fontWeight || 'normal'}
+                                            onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, fontWeight: e.target.value })}
+                                            className="w-full p-2 border border-gray-300 rounded-md text-sm"
+                                        >
+                                            <option value="normal">보통</option>
+                                            <option value="bold">굵게</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label className="block text-xs font-medium text-gray-500 mb-1">색상</label>
+                                        <div className="flex items-center gap-2">
+                                            <input
+                                                type="color"
+                                                value={styles.descriptionText?.color || styles.color || '#000000'}
+                                                onChange={(e) => handleStyleChange('descriptionText', { ...styles.descriptionText, color: e.target.value })}
+                                                className="w-8 h-8 p-0 border rounded cursor-pointer"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
