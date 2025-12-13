@@ -85,8 +85,8 @@ export const googleSheetsAdapter = {
             if (!data) return null;
             return {
                 ...data,
-                blocks: data.blocks ? JSON.parse(data.blocks) : [],
-                metadata: data.metadata ? JSON.parse(data.metadata) : {}
+                blocks: (typeof data.blocks === 'string') ? JSON.parse(data.blocks) : (data.blocks || []),
+                metadata: (typeof data.metadata === 'string') ? JSON.parse(data.metadata) : (data.metadata || {})
             };
         } catch (error) {
             console.warn('Faield to get published content', error);

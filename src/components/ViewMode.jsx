@@ -30,6 +30,10 @@ const ViewMode = ({ uuid }) => {
                         if (content.metadata) {
                             const shareTitle = content.metadata.title || '강동어울림복지관에서 안내합니다';
                             const shareDescription = content.metadata.description || content.metadata.title;
+                            const shareImage = content.metadata.image || '';
+                            const absoluteImageUrl = shareImage.startsWith('http')
+                                ? shareImage
+                                : window.location.origin + shareImage;
                             const currentUrl = window.location.href.split('#')[0]; // Remove hash for clean URL
 
                             document.title = shareTitle;
@@ -94,8 +98,10 @@ const ViewMode = ({ uuid }) => {
                     setMetadata(publishData.metadata);
                 }
             } catch (err) {
-                console.error(err);
-                setError('콘텐츠를 불러오는데 실패했습니다. URL이 유효하지 않을 수 있습니다.');
+                console.group('ViewMode Load Error');
+                console.error('Error details:', err);
+                console.groupEnd();
+                setError(`콘텐츠를 불러오는데 실패했습니다. URL이 유효하지 않을 수 있습니다. (${err.message})`);
             } finally {
                 setIsLoading(false);
             }
