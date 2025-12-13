@@ -287,6 +287,61 @@ const Header = () => {
                             <p className="text-xs text-gray-400 mt-2">이 URL을 카카오톡이나 소셜 미디어에 공유하세요</p>
                         </div>
 
+                        {/* Social Share Buttons */}
+                        <div className="grid grid-cols-1 gap-3">
+                            <button
+                                onClick={() => {
+                                    if (!window.Kakao) {
+                                        alert('Kakao SDK가 로드되지 않았습니다.');
+                                        return;
+                                    }
+                                    if (!window.Kakao.isInitialized()) {
+                                        // Replace with your actual Kakao JavaScript Key
+                                        // window.Kakao.init('YOUR_KAKAO_JAVASCRIPT_KEY');
+                                        // For demo purposes, we check if it is initialized. 
+                                        // Users must set this up in their creation flow or environment.
+
+                                        // Attempting to init with a demo key if not provided (This will likely fail without a real key)
+                                        // Best practice: Ask user to provide key or use a dedicated config.
+                                        const key = prompt('카카오 공유를 위해 JavaScript 키를 입력해주세요 (카카오 개발자 센터 > 내 애플리케이션 > 앱 키):');
+                                        if (key) window.Kakao.init(key);
+                                    }
+
+                                    if (window.Kakao.isInitialized()) {
+                                        window.Kakao.Share.sendDefault({
+                                            objectType: 'feed',
+                                            content: {
+                                                title: metadata.title,
+                                                description: metadata.description,
+                                                imageUrl: metadata.image,
+                                                link: {
+                                                    mobileWebUrl: publishedUrl,
+                                                    webUrl: publishedUrl,
+                                                },
+                                            },
+                                            buttons: [
+                                                {
+                                                    title: '자세히 보기',
+                                                    link: {
+                                                        mobileWebUrl: publishedUrl,
+                                                        webUrl: publishedUrl,
+                                                    },
+                                                },
+                                            ],
+                                        });
+                                    } else {
+                                        alert('카카오 SDK 초기화에 실패했습니다. 키를 확인해주세요.');
+                                    }
+                                }}
+                                className="px-4 py-3 bg-[#FAE100] text-[#371D1E] rounded-lg font-bold hover:bg-[#F9E000] transition-colors flex items-center justify-center gap-2"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 3c-5.523 0-10 3.575-10 7.992 0 2.508 1.442 4.73 3.708 6.136-.168.618-.607 2.238-.695 2.562-.109.403.149.398.314.288.529-.355 3.73-2.528 4.394-2.973.742.106 1.51.162 2.296.162 5.523 0 10-3.576 10-7.992C22 6.575 17.523 3 12 3z" />
+                                </svg>
+                                카카오톡으로 공유하기
+                            </button>
+                        </div>
+
                     </div>
                 </div>,
                 document.body
